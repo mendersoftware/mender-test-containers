@@ -75,6 +75,10 @@ build:qa:
     paths:
       - qaTestingImage.tar
 
+build:downstream:
+  stage: build
+  trigger: Northern.tech/Mender/deviceauth
+
 publish:build:master:
   stage: publish
   dependencies:
