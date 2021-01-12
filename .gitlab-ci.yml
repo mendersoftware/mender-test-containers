@@ -4,6 +4,7 @@ variables:
   RASPBIAN_VERSION: '2019-04-08'
   DOCKER_REPOSITORY: 'mendersoftware/mender-test-containers'
   DOCKER_HUB_USERNAME: 'menderbuildsystem'
+  DEBUG_TEST_VAR: 'var_in_mender-test-containers'
 
 stages:
   - test
@@ -77,7 +78,19 @@ build:qa:
 
 build:downstream:
   stage: build
-  trigger: Northern.tech/Mender/deviceauth
+  variables:
+      # hack - downstream will use original DOCKER_REPOSITORY - 
+      # override it explicitly
+      DOCKER_REPOSITORY: mendersoftware/deviceauth
+      UPSTREAM: mender-test-containers 
+      # there's CI_JOB_ID that's propagated, but not useful
+      # can be used only in premium
+      # and - the job that produces the artifact is a different one
+      # (and trigger jobs can't have 'script')
+      UPSTREAM_PIPELINE_ID: ${CI_PIPELINE_ID}
+  trigger: 
+    project: Northern.tech/Mender/deviceauth
+    branch: pr_450
 
 publish:build:master:
   stage: publish
