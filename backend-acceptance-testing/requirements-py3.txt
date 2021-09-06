@@ -2,7 +2,7 @@ bravado==9.2.2
 crypto
 cryptography==3.4.8
 flask
-minio==5.0.6
+minio==7.1.0
 pluggy==1.0.0
 pycrypto
 pymongo==3.12.0
