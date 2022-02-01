@@ -44,11 +44,11 @@ build:raspbian_latest:
   script:
     - tar -xvf docker-files-raspbian.tar
     - docker build --build-arg raspbian_version=${RASPBIAN_VERSION} -t $DOCKER_REPOSITORY:raspbian_latest docker-files-raspbian
-    - docker save $DOCKER_REPOSITORY:raspbian_latest > raspbianImage.tar
+    - docker save $DOCKER_REPOSITORY:raspbian_latest | gzip > raspbianImage.tar.gz
   artifacts:
     expire_in: 2w
     paths:
-      - raspbianImage.tar
+      - raspbianImage.tar.gz
 
 build:acceptance-testing:
   stage: build
@@ -57,11 +57,11 @@ build:acceptance-testing:
     - docker:dind
   script:
     - docker build -t $DOCKER_REPOSITORY:acceptance-testing -f backend-acceptance-testing/Dockerfile.backend-tests backend-acceptance-testing
-    - docker save $DOCKER_REPOSITORY:acceptance-testing > acceptanceTestingImage.tar
+    - docker save $DOCKER_REPOSITORY:acceptance-testing | gzip > acceptanceTestingImage.tar.gz
   artifacts:
     expire_in: 2w
     paths:
-      - acceptanceTestingImage.tar
+      - acceptanceTestingImage.tar.gz
 
 build:gui-e2e-testing:
   stage: build
@@ -70,11 +70,11 @@ build:gui-e2e-testing:
     - docker:dind
   script:
     - docker build -t $DOCKER_REPOSITORY:gui-e2e-testing -f gui-e2e-testing/Dockerfile gui-e2e-testing
-    - docker save $DOCKER_REPOSITORY:gui-e2e-testing > guiE2eTestingImage.tar
+    - docker save $DOCKER_REPOSITORY:gui-e2e-testing | gzip > guiE2eTestingImage.tar.gz
   artifacts:
     expire_in: 2w
     paths:
-      - guiE2eTestingImage.tar
+      - guiE2eTestingImage.tar.gz
 
 build:backend-integration-testing:
   stage: build
@@ -83,11 +83,11 @@ build:backend-integration-testing:
     - docker:dind
   script:
     - docker build -t $DOCKER_REPOSITORY:backend-integration-testing -f backend-integration-testing/Dockerfile backend-integration-testing
-    - docker save $DOCKER_REPOSITORY:backend-integration-testing > integrationTestingImage.tar
+    - docker save $DOCKER_REPOSITORY:backend-integration-testing | gzip > integrationTestingImage.tar.gz
   artifacts:
     expire_in: 2w
     paths:
-      - integrationTestingImage.tar
+      - integrationTestingImage.tar.gz
 
 build:mender-client-acceptance-testing:
   stage: build
@@ -102,9 +102,11 @@ build:mender-client-acceptance-testing:
     - apk add --no-cache aws-cli
   script:
     - docker build -t $DOCKER_REPOSITORY:mender-client-acceptance-testing -f mender-client-acceptance-testing/Dockerfile mender-client-acceptance-testing
-    - docker save $DOCKER_REPOSITORY:mender-client-acceptance-testing > qaTestingImage.tar
-    # Artifact is too large for GitLab, save in temporary S3 bucket
-    - aws s3 cp qaTestingImage.tar s3://mender-gitlab-tmp-storage/$CI_PROJECT_NAME/$CI_PIPELINE_ID/qaTestingImage.tar
+    - docker save $DOCKER_REPOSITORY:mender-client-acceptance-testing | gzip > qaTestingImage.tar.gz
+  artifacts:
+    expire_in: 2w
+    paths:
+      - qaTestingImage.tar.gz
 
 .template:publish:master:
   stage: publish
@@ -122,30 +124,17 @@ publish:build:master:
     - build:acceptance-testing
     - build:backend-integration-testing
     - build:gui-e2e-testing
+    - build:mender-client-acceptance-testing
   script:
     - echo "publishing images to Docker Hub"
     - echo -n $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
-    - docker load -i raspbianImage.tar
+    - gunzip -c raspbianImage.tar.gz | docker load
     - docker push $DOCKER_REPOSITORY:raspbian_latest;
-    - docker load -i acceptanceTestingImage.tar
+    - gunzip -c acceptanceTestingImage.tar.gz | docker load
     - docker push $DOCKER_REPOSITORY:acceptance-testing
-    - docker load -i integrationTestingImage.tar
+    - gunzip -c integrationTestingImage.tar.gz | docker load
     - docker push $DOCKER_REPOSITORY:backend-integration-testing
-    - docker load -i guiE2eTestingImage.tar
+    - gunzip -c guiE2eTestingImage.tar.gz | docker load
     - docker push $DOCKER_REPOSITORY:gui-e2e-testing
-
-publish:mender-client-acceptance-testing:master:
-  extends: .template:publish:master
-  dependencies:
-    - build:mender-client-acceptance-testing
-  before_script:
-    - export AWS_ACCESS_KEY_ID=$TMP_STORAGE_AWS_ACCESS_KEY_ID
-    - export AWS_SECRET_ACCESS_KEY=$TMP_STORAGE_AWS_SECRET_ACCESS_KEY
-    - apk add --no-cache aws-cli
-  script:
-    - echo "publishing client acceptance test image to Docker Hub"
-    - echo -n $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
-    # Fetch from temporary S3 bucket
-    - aws s3 cp s3://mender-gitlab-tmp-storage/$CI_PROJECT_NAME/$CI_PIPELINE_ID/qaTestingImage.tar qaTestingImage.tar
-    - docker load -i qaTestingImage.tar
+    - gunzip -c qaTestingImage.tar.gz | docker load
     - docker push $DOCKER_REPOSITORY:mender-client-acceptance-testing
