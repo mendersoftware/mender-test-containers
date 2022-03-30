@@ -114,10 +114,9 @@ build:mender-client-acceptance-testing:
 
 .template:publish:
   stage: publish
+  when: manual
   services:
     - docker:dind
-  only:
-    - master
   tags:
     - docker
   before_script:

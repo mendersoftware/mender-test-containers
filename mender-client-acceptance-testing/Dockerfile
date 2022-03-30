@@ -10,7 +10,7 @@ RUN apt-get update -qq && apt-get install -yyq python3-pip && pip3 install --upg
 
 # Get OS requirements from master
 RUN apt-get install -yyq wget && \
-    wget https://raw.githubusercontent.com/mendersoftware/meta-mender/master/tests/acceptance/requirements_deb.txt && \
+    wget https://raw.githubusercontent.com/kacf/meta-mender/kirkstone/tests/acceptance/requirements_deb.txt && \
     apt-get install -yyq $(cat requirements_deb.txt) && apt-get install -yq linux-modules-`uname -r`
 
 # Locales
