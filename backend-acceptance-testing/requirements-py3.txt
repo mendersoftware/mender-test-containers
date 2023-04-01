@@ -4,7 +4,7 @@ cryptography==39.0.1
 docker==6.0.0
 flask
 jsonschema<4.0
-minio==5.0.6
+minio==7.1.14
 pluggy==1.0.0
 pycrypto
 pymongo==4.2.0
