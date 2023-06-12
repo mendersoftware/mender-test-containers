@@ -65,15 +65,24 @@ build:acceptance-testing:
 build:gui-e2e-testing:
   stage: build
   needs: []
+  variables:
+    CONTAINER_TAG: "gui-e2e-testing"
   services:
     - docker:dind
   before_script:
     - apk add --no-cache aws-cli curl
     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
   script:
-    - docker build -t $DOCKER_REPOSITORY:gui-e2e-testing -f gui-e2e-testing/Dockerfile gui-e2e-testing
-    - docker save $DOCKER_REPOSITORY:gui-e2e-testing > guiE2eTestingImage.tar
-    # Upload to temporary S3 bucket
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build 
+        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
+        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
+        -f gui-e2e-testing/Dockerfile
+        --push
+        gui-e2e-testing
+    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG} > guiE2eTestingImage.tar
+    # Upload to temporary S3 bucket left for backwards compatiblity
     - mender_ci_save_tmp_artifact guiE2eTestingImage.tar
   artifacts:
     paths:
@@ -95,6 +104,8 @@ build:backend-integration-testing:
 build:mender-client-acceptance-testing:
   stage: build
   needs: []
+  variables:
+    CONTAINER_TAG: "mender-client-acceptance-testing"
   tags:
     # KVM support requires the same type of GCP machine as the tests will use
     - mender-qa-worker-client-acceptance-tests
@@ -104,8 +115,15 @@ build:mender-client-acceptance-testing:
     - apk add --no-cache aws-cli curl
     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
   script:
-    - docker build -t $DOCKER_REPOSITORY:mender-client-acceptance-testing -f mender-client-acceptance-testing/Dockerfile mender-client-acceptance-testing
-    - docker save $DOCKER_REPOSITORY:mender-client-acceptance-testing > qaTestingImage.tar
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build 
+        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
+        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
+        -f mender-client-acceptance-testing/Dockerfile
+        --push
+        mender-client-acceptance-testing
+    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG} > qaTestingImage.tar
     # Upload to temporary S3 bucket
     - mender_ci_save_tmp_artifact qaTestingImage.tar
   artifacts:
