@@ -146,17 +146,22 @@ build:aws-k8s-pipeline-toolbox:
   services:
     - docker:dind
   script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker build 
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
+        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
         --build-arg KUBECTL_VERSION=${CI_KUBECTL_VERSION}
         --build-arg HELM_VERSION=${CI_HELM_VERSION}
         --build-arg KUBECONFORM_VERSION=${CI_KUBECONFORM_VERSION}
         -f aws-k8s-toolbox/Dockerfile
         --push
         aws-k8s-toolbox
+    - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+        echo "INFO - Pushing ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}"
+        docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
+        docker push ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
+      fi
 
 .template:publish:
   stage: publish
