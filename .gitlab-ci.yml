@@ -155,7 +155,8 @@ build:aws-k8s-pipeline-toolbox:
         -f aws-k8s-toolbox/Dockerfile
         --push
         aws-k8s-toolbox
-    - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
         echo "INFO - Pushing ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}"
         docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
         docker push ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
