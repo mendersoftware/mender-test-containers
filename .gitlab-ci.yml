@@ -136,8 +136,6 @@ build:aws-k8s-pipeline-toolbox:
   stage: build
   image: docker
   needs: []
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
     CI_KUBECTL_VERSION: "1.24.0"
