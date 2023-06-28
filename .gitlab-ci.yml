@@ -223,6 +223,26 @@ build:mender-dist-packages-image:
         mender-dist-packages-building
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
 
+build:docker-multiplatform-buildx:
+  tags:
+    - mender-qa-worker-generic-light
+  stage: build
+  image: docker
+  needs: []
+  variables:
+    CONTAINER_TAG: "docker-multiplatform-buildx-v1"
+  services:
+    - docker:dind
+  script:
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build
+        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -f docker-multiplatform-buildx/Dockerfile
+        --push
+        docker-multiplatform-buildx
+
 .template:publish:
   stage: publish
   services:
@@ -324,6 +344,15 @@ publish:aws-k8s-pipeline-toolbox:
     - build:aws-k8s-pipeline-toolbox
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
+  script:
+    - *tag_n_push_to_gitlab_registry
+
+publish:docker-multiplatform-buildx:
+  extends: .template:publish
+  dependencies:
+    - build:docker-multiplatform-buildx
+  variables:
+    CONTAINER_TAG: "docker-multiplatform-v1"
   script:
     - *tag_n_push_to_gitlab_registry
 
