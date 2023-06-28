@@ -352,7 +352,7 @@ publish:docker-multiplatform-buildx:
   dependencies:
     - build:docker-multiplatform-buildx
   variables:
-    CONTAINER_TAG: "docker-multiplatform-v1"
+    CONTAINER_TAG: "docker-multiplatform-buildx-v1"
   script:
     - *tag_n_push_to_gitlab_registry
 
