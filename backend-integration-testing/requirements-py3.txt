@@ -7,7 +7,7 @@ chardet==5.1.0
 cryptography==39.0.1
 docker==6.0.0
 execnet==1.9.0
-fabric==2.7.1
+fabric==3.1.0
 filelock==3.12.2
 idna==3.3
 iniconfig==2.0.0
