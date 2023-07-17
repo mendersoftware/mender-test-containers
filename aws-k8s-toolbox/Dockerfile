@@ -6,6 +6,8 @@ LABEL REFRESHED_AT=20230613
 ARG KUBECTL_VERSION=1.25.9
 ARG HELM_VERSION=v3.9.0
 ARG KUBECONFORM_VERSION=0.4.14
+ARG YQ_VERSION=4.33.2
+
 # env
 ENV BIN_DIR /opt/builder/bin
 ENV USER builder
@@ -72,6 +74,10 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     && unzip awscliv2.zip \
     && ./aws/install \
     && aws --version
+
+# yq
+RUN wget https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64.tar.gz -O - | tar xz \
+    && mv ./yq_linux_amd64 ./yq
 
 #USER ${USER}
 ENV PATH="${BIN_DIR}:${PATH}"
