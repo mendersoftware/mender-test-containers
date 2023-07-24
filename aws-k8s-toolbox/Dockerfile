@@ -26,6 +26,7 @@ RUN apt-get update && \
        unzip \
        make \
        uuid-runtime \
+       dnsutils \
     && rm -rf /var/lib/apt/lists/*
 
 # workdir
