@@ -36,6 +36,8 @@ include:
     file: '.gitlab-ci-check-python3-format.yml'
 
 build_prep:
+  tags:
+    - mender-qa-worker-generic-light
   stage: build_prep
   needs: []
   image: buildpack-deps:scm
@@ -50,6 +52,8 @@ build_prep:
       - docker-files-raspbian.tar
 
 build:raspbian_latest:
+  tags:
+    - mender-qa-worker-generic-light
   stage: build
   dependencies:
     - build_prep
@@ -75,6 +79,8 @@ build:raspbian_latest:
       - raspbianImage.tar
 
 build:acceptance-testing:
+  tags:
+    - mender-qa-worker-generic-light
   stage: build
   needs: []
   variables:
@@ -99,6 +105,8 @@ build:acceptance-testing:
       - acceptanceTestingImage.tar
 
 build:gui-e2e-testing:
+  tags:
+    - mender-qa-worker-generic-light
   stage: build
   needs: []
   variables:
@@ -125,6 +133,8 @@ build:gui-e2e-testing:
       - checksums
 
 build:backend-integration-testing:
+  tags:
+    - mender-qa-worker-generic-light
   stage: build
   needs: []
   variables:
@@ -148,13 +158,13 @@ build:backend-integration-testing:
       - integrationTestingImage.tar
 
 build:mender-client-acceptance-testing:
+  tags:
+    # KVM support requires the same type of GCP machine as the tests will use
+    - mender-qa-worker-client-acceptance-tests
   stage: build
   needs: []
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
-  tags:
-    # KVM support requires the same type of GCP machine as the tests will use
-    - mender-qa-worker-client-acceptance-tests
   services:
     - docker:dind
   before_script:
@@ -203,6 +213,8 @@ build:aws-k8s-pipeline-toolbox:
         aws-k8s-toolbox
 
 build:mender-dist-packages-image:
+  tags:
+    - mender-qa-worker-generic-light
   stage: build
   needs: []
   image: docker:git
@@ -244,13 +256,13 @@ build:docker-multiplatform-buildx:
         docker-multiplatform-buildx
 
 .template:publish:
+  tags:
+    - mender-qa-worker-generic-light
   stage: publish
   services:
     - docker:dind
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
-  tags:
-    - docker
   before_script:
     - echo -n $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
