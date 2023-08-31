@@ -12,7 +12,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     curl \
     debhelper \
     devscripts \
-    equivs
+    equivs \
+    pkg-config
 
 ARG ARCH=amd64
 ARG DISTRO=debian

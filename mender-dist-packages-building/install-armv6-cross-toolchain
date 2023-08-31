@@ -85,6 +85,8 @@ declare -a required_packages_bullseye=(
     libssl1.1
     libxml2
     libzstd1
+    libsepol1
+    libsepol1-dev
 )
 
 declare -a required_packages_buster=(
@@ -164,6 +166,8 @@ declare -a required_packages_buster=(
     libssl1.1
     libxml2
     libzstd1
+    libsepol1
+    libsepol1-dev
 )
 
 declare -A cross_pi_toolchain_buster=(
@@ -215,15 +219,11 @@ function install_cross_compiler_toolchain() {
     )
 }
 
-# Get depdendencies from upstream, manually donwloading deb packages, and fake pkg-config.
-# NOTE: pkg-config is used from go build to obtain cflags and libs required to build C code; however
-# for armhf we will explicitly pass these flags for go to use our custom sysroot instead of the system
-# one. Alternatively pkg-config supports setting a prefix, but that would require patching the source code.
+# Get depdendencies from upstream, manually downloading deb packages.
 function setup_pkg_config() {
     [[ $# -ne 2 ]] && { echo "Two arguments required. Got: $#"; exit 1; }
     local -r cache="$1"
     local -r URL="$2"
-    ln -s /bin/true /usr/bin/pkg-config || true
     mkdir --parents ${cache}
     curl -f "${URL}" -o ${cache}/Packages.gz
     (cd ${cache} && gunzip Packages.gz )
@@ -238,7 +238,14 @@ function install_packages_to_toolchain_root() {
         download_pkg ${cache} ${pkg}
         echo "Extracting ${pkg} to an archive (tar.(xz|gz))...";
         ar -x ${cache}/${pkg}_*_armhf.deb data.tar.xz;
+        # List the file contents
+        tar tvf data.tar.xz
+        # Since '/arm-linux-gnueabihf/' is not in the default LIBRARY_PATH for
+        # the compiler, simply remove it
         tar --extract  --directory=${toolchain_sysroot} --file=data.tar.xz --transform='s,/arm-linux-gnueabihf,,'
+        # And also keep the same files, with the 'arm-linux-gnueabihf' path to
+        # keep 'pkg-config' happy
+        tar --extract  --directory=${toolchain_sysroot} --file=data.tar.xz
         echo "Finished ${pkg}"
     done
 }
