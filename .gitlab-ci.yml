@@ -255,6 +255,26 @@ build:docker-multiplatform-buildx:
         --push
         docker-multiplatform-buildx
 
+build:goveralls:
+  tags:
+    - mender-qa-worker-generic-light
+  stage: build
+  image: docker
+  needs: []
+  variables:
+    CONTAINER_TAG: "goveralls"
+  services:
+    - docker:dind
+  script:
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build
+        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -f goveralls/Dockerfile
+        --push
+        goveralls
+
 .template:publish:
   tags:
     - mender-qa-worker-generic-light
@@ -382,3 +402,12 @@ publish:mender-dist-packages-image:
     - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
     - *tag_n_push_to_gitlab_registry
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
+
+publish:goveralls:
+  extends: .template:publish
+  dependencies:
+    - build:goveralls
+  variables:
+    CONTAINER_TAG: "goveralls"
+  script:
+    - *tag_n_push_to_gitlab_registry
