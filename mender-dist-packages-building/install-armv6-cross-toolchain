@@ -10,37 +10,13 @@ set -ex
 RASPBIAN_VERSION="${RASPBIAN_VERSION:?No Raspbian version set}"
 
 declare -a required_packages_bullseye=(
-    liblzma5
-    liblzma-dev
-    libssl1.1
-    libssl-dev
-    libglib2.0-0
-    libglib2.0-dev
-    libpcre3
-    libpcre3-dev
-    zlib1g
-    zlib1g-dev
-    libffi-dev
-    libffi7
-    libmount1
-    libmount-dev
-    libselinux1
-    libselinux1-dev
-    libpcre2-8-0
-    libpcre2-dev
-    libblkid1
-    libblkid-dev
-    libuuid1
-    uuid-runtime
-    uuid-dev
-    liblmdb-dev
-    liblmdb0
     libacl1
     libarchive-dev
     libarchive13
     libasan5
     libatomic1
     libattr1
+    libblkid-dev
     libblkid1
     libboost-atomic-dev
     libboost-atomic1.74-dev
@@ -69,58 +45,50 @@ declare -a required_packages_bullseye=(
     libboost-thread1.74.0
     libboost1.74-dev
     libbz2-1.0
+    libffi-dev
+    libffi7
+    libglib2.0-0
+    libglib2.0-dev
     libgomp1
     libicu-dev
     libicu67
     libidn2-0
     liblmdb-dev
+    liblmdb-dev
     liblmdb0
     liblz4-1
+    liblzma-dev
     liblzma5
+    libmount-dev
     libmount1
     libnettle8
+    libpcre2-8-0
+    libpcre2-dev
     libpcre3
+    libpcre3-dev
     libselinux1
-    libssl-dev
-    libssl1.1
-    libxml2
-    libzstd1
+    libselinux1-dev
     libsepol1
     libsepol1-dev
+    libssl-dev
+    libssl1.1
+    libuuid1
+    libxml2
+    libzstd1
+    uuid-dev
+    uuid-runtime
+    zlib1g
+    zlib1g-dev
 )
 
 declare -a required_packages_buster=(
-    liblzma5
-    liblzma-dev
-    libssl1.1
-    libssl-dev
-    libglib2.0-0
-    libglib2.0-dev
-    libpcre3
-    libpcre3-dev
-    zlib1g
-    zlib1g-dev
-    libffi-dev
-    libffi6
-    libmount1
-    libmount-dev
-    libselinux1
-    libselinux1-dev
-    libpcre2-8-0
-    libpcre2-dev
-    libblkid1
-    libblkid-dev
-    libuuid1
-    uuid-runtime
-    uuid-dev
-    liblmdb-dev
-    liblmdb0
     libacl1
     libarchive-dev
     libarchive13
     libasan5
     libatomic1
     libattr1
+    libblkid-dev
     libblkid1
     libboost-atomic-dev
     libboost-atomic1.67-dev
@@ -149,7 +117,11 @@ declare -a required_packages_buster=(
     libboost-thread1.67.0
     libboost1.67-dev
     libbz2-1.0
+    libffi-dev
+    libffi6
     libgcc1
+    libglib2.0-0
+    libglib2.0-dev
     libgomp1
     libicu-dev
     libicu63
@@ -157,17 +129,28 @@ declare -a required_packages_buster=(
     liblmdb-dev
     liblmdb0
     liblz4-1
+    liblzma-dev
     liblzma5
+    libmount-dev
     libmount1
     libnettle6
+    libpcre2-8-0
+    libpcre2-dev
     libpcre3
+    libpcre3-dev
     libselinux1
-    libssl-dev
-    libssl1.1
-    libxml2
-    libzstd1
+    libselinux1-dev
     libsepol1
     libsepol1-dev
+    libssl-dev
+    libssl1.1
+    libuuid1
+    libxml2
+    libzstd1
+    uuid-dev
+    uuid-runtime
+    zlib1g
+    zlib1g-dev
 )
 
 declare -A cross_pi_toolchain_buster=(
