@@ -185,7 +185,7 @@ function download_pkg() {
     local -r pkg="$2"
     deb_package_url=$(grep Filename ${cache}/Packages | grep /${pkg}_ | grep armhf | tail -n1 | sed 's/Filename: //');
     filename=$(basename $deb_package_url);
-    curl --location http://raspbian.raspberrypi.org/raspbian/${deb_package_url} -o ${cache}/$filename 2>/dev/null || { echo "Did not find the package: ${pkg} in the raspbian repos.."; exit 1; }
+    curl --fail --location http://raspbian.raspberrypi.org/raspbian/${deb_package_url} -o ${cache}/$filename 2>/dev/null || { echo "Did not find the package: ${pkg} in the raspbian repos.."; exit 1; }
 };
 
 function install_cross_compiler_toolchain() {
