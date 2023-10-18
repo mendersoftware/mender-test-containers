@@ -202,7 +202,7 @@ function install_cross_compiler_toolchain() {
     )
 }
 
-# Get depdendencies from upstream, manually downloading deb packages.
+# Get dependencies from upstream, manually downloading deb packages.
 function setup_pkg_config() {
     [[ $# -ne 2 ]] && { echo "Two arguments required. Got: $#"; exit 1; }
     local -r cache="$1"
