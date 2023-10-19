@@ -10,37 +10,13 @@ set -ex
 RASPBIAN_VERSION="${RASPBIAN_VERSION:?No Raspbian version set}"
 
 declare -a required_packages_bullseye=(
-    liblzma5
-    liblzma-dev
-    libssl1.1
-    libssl-dev
-    libglib2.0-0
-    libglib2.0-dev
-    libpcre3
-    libpcre3-dev
-    zlib1g
-    zlib1g-dev
-    libffi-dev
-    libffi7
-    libmount1
-    libmount-dev
-    libselinux1
-    libselinux1-dev
-    libpcre2-8-0
-    libpcre2-dev
-    libblkid1
-    libblkid-dev
-    libuuid1
-    uuid-runtime
-    uuid-dev
-    liblmdb-dev
-    liblmdb0
     libacl1
     libarchive-dev
     libarchive13
     libasan5
     libatomic1
     libattr1
+    libblkid-dev
     libblkid1
     libboost-atomic-dev
     libboost-atomic1.74-dev
@@ -69,58 +45,58 @@ declare -a required_packages_bullseye=(
     libboost-thread1.74.0
     libboost1.74-dev
     libbz2-1.0
+    libdbus-1-3
+    libdbus-1-dev
+    libffi-dev
+    libffi7
+    libgcrypt20
+    libgcrypt20-dev
+    libglib2.0-0
+    libglib2.0-dev
     libgomp1
+    libgpg-error-dev
+    libgpg-error0
     libicu-dev
     libicu67
     libidn2-0
     liblmdb-dev
+    liblmdb-dev
     liblmdb0
     liblz4-1
+    liblzma-dev
     liblzma5
+    libmount-dev
     libmount1
     libnettle8
+    libpcre2-8-0
+    libpcre2-dev
     libpcre3
+    libpcre3-dev
     libselinux1
-    libssl-dev
-    libssl1.1
-    libxml2
-    libzstd1
+    libselinux1-dev
     libsepol1
     libsepol1-dev
+    libssl-dev
+    libssl1.1
+    libsystemd-dev
+    libsystemd0
+    libuuid1
+    libxml2
+    libzstd1
+    uuid-dev
+    uuid-runtime
+    zlib1g
+    zlib1g-dev
 )
 
 declare -a required_packages_buster=(
-    liblzma5
-    liblzma-dev
-    libssl1.1
-    libssl-dev
-    libglib2.0-0
-    libglib2.0-dev
-    libpcre3
-    libpcre3-dev
-    zlib1g
-    zlib1g-dev
-    libffi-dev
-    libffi6
-    libmount1
-    libmount-dev
-    libselinux1
-    libselinux1-dev
-    libpcre2-8-0
-    libpcre2-dev
-    libblkid1
-    libblkid-dev
-    libuuid1
-    uuid-runtime
-    uuid-dev
-    liblmdb-dev
-    liblmdb0
     libacl1
     libarchive-dev
     libarchive13
     libasan5
     libatomic1
     libattr1
+    libblkid-dev
     libblkid1
     libboost-atomic-dev
     libboost-atomic1.67-dev
@@ -149,25 +125,48 @@ declare -a required_packages_buster=(
     libboost-thread1.67.0
     libboost1.67-dev
     libbz2-1.0
+    libdbus-1-3
+    libdbus-1-dev
+    libffi-dev
+    libffi6
     libgcc1
+    libgcrypt20
+    libgcrypt20-dev
+    libglib2.0-0
+    libglib2.0-dev
     libgomp1
+    libgpg-error-dev
+    libgpg-error0
     libicu-dev
     libicu63
     libidn2-0
     liblmdb-dev
     liblmdb0
     liblz4-1
+    liblzma-dev
     liblzma5
+    libmount-dev
     libmount1
     libnettle6
+    libpcre2-8-0
+    libpcre2-dev
     libpcre3
+    libpcre3-dev
     libselinux1
-    libssl-dev
-    libssl1.1
-    libxml2
-    libzstd1
+    libselinux1-dev
     libsepol1
     libsepol1-dev
+    libssl-dev
+    libssl1.1
+    libsystemd-dev
+    libsystemd0
+    libuuid1
+    libxml2
+    libzstd1
+    uuid-dev
+    uuid-runtime
+    zlib1g
+    zlib1g-dev
 )
 
 declare -A cross_pi_toolchain_buster=(
@@ -202,7 +201,7 @@ function download_pkg() {
     local -r pkg="$2"
     deb_package_url=$(grep Filename ${cache}/Packages | grep /${pkg}_ | grep armhf | tail -n1 | sed 's/Filename: //');
     filename=$(basename $deb_package_url);
-    curl --location http://raspbian.raspberrypi.org/raspbian/${deb_package_url} -o ${cache}/$filename 2>/dev/null || { echo "Did not find the package: ${pkg} in the raspbian repos.."; exit 1; }
+    curl --fail --location http://raspbian.raspberrypi.org/raspbian/${deb_package_url} -o ${cache}/$filename 2>/dev/null || { echo "Did not find the package: ${pkg} in the raspbian repos.."; exit 1; }
 };
 
 function install_cross_compiler_toolchain() {
@@ -219,7 +218,7 @@ function install_cross_compiler_toolchain() {
     )
 }
 
-# Get depdendencies from upstream, manually downloading deb packages.
+# Get dependencies from upstream, manually downloading deb packages.
 function setup_pkg_config() {
     [[ $# -ne 2 ]] && { echo "Two arguments required. Got: $#"; exit 1; }
     local -r cache="$1"
