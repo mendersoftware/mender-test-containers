@@ -196,7 +196,7 @@ build:aws-k8s-pipeline-toolbox:
     CONTAINER_TAG: "aws-k8s-v1"
     CI_KUBECTL_VERSION: "1.24.0"
     CI_HELM_VERSION: "v3.9.0"
-    CI_KUBECONFORM_VERSION: "0.4.14"
+    CI_KUBECONFORM_VERSION: "0.6.3"
   services:
     - docker:dind
   script:
