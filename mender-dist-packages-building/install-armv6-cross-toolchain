@@ -9,6 +9,86 @@ set -ex
 
 RASPBIAN_VERSION="${RASPBIAN_VERSION:?No Raspbian version set}"
 
+declare -a required_packages_bookworm=(
+    libacl1
+    libarchive-dev
+    libarchive13
+    libasan5
+    libatomic1
+    libattr1
+    libblkid-dev
+    libblkid1
+    libboost-atomic-dev
+    libboost-atomic1.74-dev
+    libboost-atomic1.74.0
+    libboost-chrono-dev
+    libboost-chrono1.74-dev
+    libboost-chrono1.74.0
+    libboost-date-time1.74-dev
+    libboost-date-time1.74.0
+    libboost-dev
+    libboost-filesystem-dev
+    libboost-filesystem1.74-dev
+    libboost-filesystem1.74.0
+    libboost-log-dev
+    libboost-log1.74-dev
+    libboost-log1.74.0
+    libboost-regex-dev
+    libboost-regex1.74-dev
+    libboost-regex1.74.0
+    libboost-serialization1.74-dev
+    libboost-serialization1.74.0
+    libboost-system1.74-dev
+    libboost-system1.74.0
+    libboost-thread-dev
+    libboost-thread1.74-dev
+    libboost-thread1.74.0
+    libboost1.74-dev
+    libbz2-1.0
+    libdbus-1-3
+    libdbus-1-dev
+    libffi-dev
+    libffi7
+    libgcrypt20
+    libgcrypt20-dev
+    libglib2.0-0
+    libglib2.0-dev
+    libgomp1
+    libgpg-error-dev
+    libgpg-error0
+    libicu-dev
+    libicu67
+    libidn2-0
+    liblmdb-dev
+    liblmdb-dev
+    liblmdb0
+    liblz4-1
+    liblzma-dev
+    liblzma5
+    libmount-dev
+    libmount1
+    libnettle8
+    libpcre2-8-0
+    libpcre2-dev
+    libpcre3
+    libpcre3-dev
+    libselinux1
+    libselinux1-dev
+    libsepol1
+    libsepol1-dev
+    libssl-dev
+    libssl1.1
+    libsystemd-dev
+    libsystemd0
+    libuuid1
+    libxml2
+    libzstd1
+    uuid-dev
+    uuid-runtime
+    zlib1g
+    zlib1g-dev
+)
+
 declare -a required_packages_bullseye=(
     libacl1
     libarchive-dev
@@ -189,9 +269,20 @@ declare -A cross_pi_toolchain_bullseye=(
     ["url"]="https://sourceforge.net/projects/raspberry-pi-cross-compilers/files/Raspberry%20Pi%20GCC%20Cross-Compiler%20Toolchains/Bullseye/GCC%2010.3.0/Raspberry%20Pi%201%2C%20Zero/cross-gcc-10.3.0-pi_0-1.tar.gz/download"
 )
 
+declare -A cross_pi_toolchain_bookworm=(
+    ["packageurl"]="http://raspbian.raspberrypi.org/raspbian/dists/bookworm/main/binary-armhf/Packages.gz"
+    ["packagecache"]="/var/cache/cross-bookworm"
+    ["requiredpkgs"]=required_packages_bookworm
+    ["prefix"]="/opt"
+    ["name"]="cross-pi-gcc-10.3.0-0"
+    ["sysroot"]="/opt/cross-pi-gcc-10.3.0-0/arm-linux-gnueabihf/libc/"
+    ["url"]="https://sourceforge.net/projects/raspberry-pi-cross-compilers/files/Raspberry%20Pi%20GCC%20Cross-Compiler%20Toolchains/Bullseye/GCC%2010.3.0/Raspberry%20Pi%201%2C%20Zero/cross-gcc-10.3.0-pi_0-1.tar.gz/download" # as of now the Bookworm toolchain does not exist there
+)
+
 declare -a cross_pi_toolchains=(
     cross_pi_toolchain_buster
     cross_pi_toolchain_bullseye
+    cross_pi_toolchain_bookworm
 )
 
 function download_pkg() {
