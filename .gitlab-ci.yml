@@ -21,12 +21,6 @@ variables:
   - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
   - docker push ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
 
-stages:
-  - test
-  - build_prep
-  - build
-  - publish
-
 include:
   - project: 'Northern.tech/Mender/mendertesting'
     file: '.gitlab-ci-check-commits-signoffs.yml'
@@ -35,10 +29,15 @@ include:
   - project: 'Northern.tech/Mender/mendertesting'
     file: '.gitlab-ci-check-python3-format.yml'
 
-build_prep:
+stages:
+  - build
+  - test
+  - publish
+
+build:prepare:raspbian:
   tags:
     - mender-qa-worker-generic-light
-  stage: build_prep
+  stage: build
   needs: []
   image: buildpack-deps:scm
   script:
@@ -55,8 +54,9 @@ build:raspbian_latest:
   tags:
     - mender-qa-worker-generic-light
   stage: build
-  dependencies:
-    - build_prep
+  needs:
+    - job: build:prepare:raspbian
+      artifacts: true
   services:
     - docker:dind
   variables:
@@ -289,8 +289,9 @@ build:goveralls:
 
 publish:raspbian_latest:
   extends: .template:publish
-  dependencies:
-    - build:raspbian_latest
+  needs:
+    - job: build:raspbian_latest
+      artifacts: true
   variables:
     CONTAINER_TAG: "rasbian_latest"
   script:
@@ -304,8 +305,9 @@ publish:raspbian_latest:
 
 publish:acceptance-testing:
   extends: .template:publish
-  dependencies:
-    - build:acceptance-testing
+  needs:
+    - job: build:acceptance-testing
+      artifacts: true
   variables:
     CONTAINER_TAG: "acceptance-testing"
   script:
@@ -319,8 +321,9 @@ publish:acceptance-testing:
 
 publish:backend-integration-testing:
   extends: .template:publish
-  dependencies:
-    - build:backend-integration-testing
+  needs:
+    - job: build:backend-integration-testing
+      artifacts: true
   variables:
     CONTAINER_TAG: "backend-integration-testing"
   script:
@@ -334,8 +337,9 @@ publish:backend-integration-testing:
 
 publish:gui-e2e-testing:
   extends: .template:publish
-  dependencies:
-    - build:gui-e2e-testing
+  needs:
+    - job: build:gui-e2e-testing
+      artifacts: true
   variables:
     CONTAINER_TAG: "gui-e2e-testing"
   script:
@@ -353,8 +357,9 @@ publish:gui-e2e-testing:
 
 publish:mender-client-acceptance-testing:
   extends: .template:publish
-  dependencies:
-    - build:mender-client-acceptance-testing
+  needs:
+    - job: build:mender-client-acceptance-testing
+      artifacts: true
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
   script:
@@ -372,8 +377,9 @@ publish:mender-client-acceptance-testing:
 
 publish:aws-k8s-pipeline-toolbox:
   extends: .template:publish
-  dependencies:
-    - build:aws-k8s-pipeline-toolbox
+  needs:
+    - job: build:aws-k8s-pipeline-toolbox
+      artifacts: true
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
   script:
@@ -381,8 +387,9 @@ publish:aws-k8s-pipeline-toolbox:
 
 publish:docker-multiplatform-buildx:
   extends: .template:publish
-  dependencies:
-    - build:docker-multiplatform-buildx
+  needs:
+    - job: build:docker-multiplatform-buildx
+      artifacts: true
   variables:
     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
   script:
@@ -390,7 +397,7 @@ publish:docker-multiplatform-buildx:
 
 publish:mender-dist-packages-image:
   extends: .template:publish
-  dependencies:
+  needs:
     # NOTE: We should depend on each of the jobs individually with:
     # - "build:mender-dist-packages-image: [${DISTRO}, ${RELEASE}, ${ARCH}]"
     # However GitLab does not seem to expand these variables on a dependencies
@@ -405,8 +412,9 @@ publish:mender-dist-packages-image:
 
 publish:goveralls:
   extends: .template:publish
-  dependencies:
-    - build:goveralls
+  needs:
+    - job: build:goveralls
+      artifacts: true
   variables:
     CONTAINER_TAG: "goveralls"
   script:
