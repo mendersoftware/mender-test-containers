@@ -419,3 +419,35 @@ publish:acceptance-testing:
 #     CONTAINER_TAG: "goveralls"
 #   script:
 #     - *tag_n_push_to_gitlab_registry
+
+.template:trigger:acceptance-testing:
+  stage: test
+  needs:
+    - job: build:acceptance-testing
+      artifacts: false
+  inherit:
+    variables: false
+  variables:
+    CONTAINER_TAG: "acceptance-testing"
+    MENDER_TEST_CONTAINERS_CANDIDATE_TAG: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+
+trigger:acceptance-testing:inventory:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/inventory
+    branch: QA-505-poc-multi-project-pipeline
+    strategy: depend
+
+trigger:acceptance-testing:deviceauth:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/deviceauth
+    branch: QA-505-poc-multi-project-pipeline
+    strategy: depend
+
+trigger:acceptance-testing:deployments:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/deployments
+    branch: QA-505-poc-multi-project-pipeline
+    strategy: depend
