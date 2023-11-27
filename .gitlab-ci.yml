@@ -34,49 +34,49 @@ stages:
   - test
   - publish
 
-build:prepare:raspbian:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  needs: []
-  image: buildpack-deps:scm
-  script:
-    - cd docker/docker-files-raspbian
-    - apt-get update && apt-get install -yyq sudo unzip fdisk
-    - ./prepare-raspbian-img.sh ${RASPBIAN_VERSION}
-    - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
-  artifacts:
-    expire_in: 2w
-    paths:
-      - docker-files-raspbian.tar
+# build:prepare:raspbian:
+#   tags:
+#     - mender-qa-worker-generic-light
+#   stage: build
+#   needs: []
+#   image: buildpack-deps:scm
+#   script:
+#     - cd docker/docker-files-raspbian
+#     - apt-get update && apt-get install -yyq sudo unzip fdisk
+#     - ./prepare-raspbian-img.sh ${RASPBIAN_VERSION}
+#     - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
+#   artifacts:
+#     expire_in: 2w
+#     paths:
+#       - docker-files-raspbian.tar
 
-build:raspbian_latest:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  needs:
-    - job: build:prepare:raspbian
-      artifacts: true
-  services:
-    - docker:dind
-  variables:
-    CONTAINER_TAG: "rasbian_latest"
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - tar -xvf docker-files-raspbian.tar
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --build-arg raspbian_version=${RASPBIAN_VERSION}
-        --push
-        docker-files-raspbian
-    # Upload to artifact storage left for backwards compatiblity
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > raspbianImage.tar
-  artifacts:
-    expire_in: 2w
-    paths:
-      - raspbianImage.tar
+# build:raspbian_latest:
+#   tags:
+#     - mender-qa-worker-generic-light
+#   stage: build
+#   needs:
+#     - job: build:prepare:raspbian
+#       artifacts: true
+#   services:
+#     - docker:dind
+#   variables:
+#     CONTAINER_TAG: "rasbian_latest"
+#   script:
+#     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - tar -xvf docker-files-raspbian.tar
+#     - docker build
+#         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+#         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+#         --build-arg raspbian_version=${RASPBIAN_VERSION}
+#         --push
+#         docker-files-raspbian
+#     # Upload to artifact storage left for backwards compatiblity
+#     - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > raspbianImage.tar
+#   artifacts:
+#     expire_in: 2w
+#     paths:
+#       - raspbianImage.tar
 
 build:acceptance-testing:
   tags:
@@ -104,176 +104,176 @@ build:acceptance-testing:
     paths:
       - acceptanceTestingImage.tar
 
-build:gui-e2e-testing:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  needs: []
-  variables:
-    CONTAINER_TAG: "gui-e2e-testing"
-  services:
-    - docker:dind
-  before_script:
-    - apk add --no-cache aws-cli curl
-    - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        -f gui-e2e-testing/Dockerfile
-        --push
-        gui-e2e-testing
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > guiE2eTestingImage.tar
-    # Upload to temporary S3 bucket left for backwards compatiblity
-    - mender_ci_save_tmp_artifact guiE2eTestingImage.tar
-  artifacts:
-    paths:
-      - checksums
+# build:gui-e2e-testing:
+#   tags:
+#     - mender-qa-worker-generic-light
+#   stage: build
+#   needs: []
+#   variables:
+#     CONTAINER_TAG: "gui-e2e-testing"
+#   services:
+#     - docker:dind
+#   before_script:
+#     - apk add --no-cache aws-cli curl
+#     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
+#   script:
+#     - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - docker build
+#         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+#         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+#         -f gui-e2e-testing/Dockerfile
+#         --push
+#         gui-e2e-testing
+#     - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > guiE2eTestingImage.tar
+#     # Upload to temporary S3 bucket left for backwards compatiblity
+#     - mender_ci_save_tmp_artifact guiE2eTestingImage.tar
+#   artifacts:
+#     paths:
+#       - checksums
 
-build:backend-integration-testing:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  needs: []
-  variables:
-    CONTAINER_TAG: "backend-integration-testing"
-  services:
-    - docker:dind
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        -f backend-integration-testing/Dockerfile
-        --push
-        backend-integration-testing
-    # Upload to artifact storage left for backwards compatiblity
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > integrationTestingImage.tar
-  artifacts:
-    expire_in: 2w
-    paths:
-      - integrationTestingImage.tar
+# build:backend-integration-testing:
+#   tags:
+#     - mender-qa-worker-generic-light
+#   stage: build
+#   needs: []
+#   variables:
+#     CONTAINER_TAG: "backend-integration-testing"
+#   services:
+#     - docker:dind
+#   script:
+#     - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - docker build
+#         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+#         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+#         -f backend-integration-testing/Dockerfile
+#         --push
+#         backend-integration-testing
+#     # Upload to artifact storage left for backwards compatiblity
+#     - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > integrationTestingImage.tar
+#   artifacts:
+#     expire_in: 2w
+#     paths:
+#       - integrationTestingImage.tar
 
-build:mender-client-acceptance-testing:
-  tags:
-    # KVM support requires the same type of GCP machine as the tests will use
-    - mender-qa-worker-client-acceptance-tests
-  stage: build
-  needs: []
-  variables:
-    CONTAINER_TAG: "mender-client-acceptance-testing"
-  services:
-    - docker:dind
-  before_script:
-    - apk add --no-cache aws-cli curl
-    - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        -f mender-client-acceptance-testing/Dockerfile
-        --push
-        mender-client-acceptance-testing
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > qaTestingImage.tar
-    # Upload to temporary S3 bucket
-    - mender_ci_save_tmp_artifact qaTestingImage.tar
-  artifacts:
-    paths:
-      - checksums
+# build:mender-client-acceptance-testing:
+#   tags:
+#     # KVM support requires the same type of GCP machine as the tests will use
+#     - mender-qa-worker-client-acceptance-tests
+#   stage: build
+#   needs: []
+#   variables:
+#     CONTAINER_TAG: "mender-client-acceptance-testing"
+#   services:
+#     - docker:dind
+#   before_script:
+#     - apk add --no-cache aws-cli curl
+#     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
+#   script:
+#     - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - docker build
+#         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+#         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+#         -f mender-client-acceptance-testing/Dockerfile
+#         --push
+#         mender-client-acceptance-testing
+#     - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > qaTestingImage.tar
+#     # Upload to temporary S3 bucket
+#     - mender_ci_save_tmp_artifact qaTestingImage.tar
+#   artifacts:
+#     paths:
+#       - checksums
 
-build:aws-k8s-pipeline-toolbox:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  image: docker
-  needs: []
-  variables:
-    CONTAINER_TAG: "aws-k8s-v1"
-    CI_KUBECTL_VERSION: "1.24.0"
-    CI_HELM_VERSION: "v3.12.0"
-    CI_KUBECONFORM_VERSION: "0.6.3"
-  services:
-    - docker:dind
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --build-arg KUBECTL_VERSION=${CI_KUBECTL_VERSION}
-        --build-arg HELM_VERSION=${CI_HELM_VERSION}
-        --build-arg KUBECONFORM_VERSION=${CI_KUBECONFORM_VERSION}
-        -f aws-k8s-toolbox/Dockerfile
-        --push
-        aws-k8s-toolbox
+# build:aws-k8s-pipeline-toolbox:
+#   tags:
+#     - mender-qa-worker-generic-light
+#   stage: build
+#   image: docker
+#   needs: []
+#   variables:
+#     CONTAINER_TAG: "aws-k8s-v1"
+#     CI_KUBECTL_VERSION: "1.24.0"
+#     CI_HELM_VERSION: "v3.12.0"
+#     CI_KUBECONFORM_VERSION: "0.6.3"
+#   services:
+#     - docker:dind
+#   script:
+#     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - docker build
+#         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+#         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+#         --build-arg KUBECTL_VERSION=${CI_KUBECTL_VERSION}
+#         --build-arg HELM_VERSION=${CI_HELM_VERSION}
+#         --build-arg KUBECONFORM_VERSION=${CI_KUBECONFORM_VERSION}
+#         -f aws-k8s-toolbox/Dockerfile
+#         --push
+#         aws-k8s-toolbox
 
-build:mender-dist-packages-image:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  needs: []
-  image: docker:git
-  services:
-    - docker:dind
-  script:
-    - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --build-arg DISTRO=${DISTRO}
-        --build-arg VERSION=${RELEASE}
-        --build-arg ARCH=${ARCH}
-        -f mender-dist-packages-building/Dockerfile
-        --push
-        mender-dist-packages-building
-  parallel: !reference [.mender-dist-packages-image-matrix, parallel]
+# build:mender-dist-packages-image:
+#   tags:
+#     - mender-qa-worker-generic-light
+#   stage: build
+#   needs: []
+#   image: docker:git
+#   services:
+#     - docker:dind
+#   script:
+#     - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
+#     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - docker build
+#         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+#         --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+#         --build-arg DISTRO=${DISTRO}
+#         --build-arg VERSION=${RELEASE}
+#         --build-arg ARCH=${ARCH}
+#         -f mender-dist-packages-building/Dockerfile
+#         --push
+#         mender-dist-packages-building
+#   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
 
-build:docker-multiplatform-buildx:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  image: docker
-  needs: []
-  variables:
-    CONTAINER_TAG: "docker-multiplatform-buildx-v1"
-  services:
-    - docker:dind
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        -f docker-multiplatform-buildx/Dockerfile
-        --push
-        docker-multiplatform-buildx
+# build:docker-multiplatform-buildx:
+#   tags:
+#     - mender-qa-worker-generic-light
+#   stage: build
+#   image: docker
+#   needs: []
+#   variables:
+#     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
+#   services:
+#     - docker:dind
+#   script:
+#     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - docker build
+#         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+#         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+#         -f docker-multiplatform-buildx/Dockerfile
+#         --push
+#         docker-multiplatform-buildx
 
-build:goveralls:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  image: docker
-  needs: []
-  variables:
-    CONTAINER_TAG: "goveralls"
-  services:
-    - docker:dind
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        -f goveralls/Dockerfile
-        --push
-        goveralls
+# build:goveralls:
+#   tags:
+#     - mender-qa-worker-generic-light
+#   stage: build
+#   image: docker
+#   needs: []
+#   variables:
+#     CONTAINER_TAG: "goveralls"
+#   services:
+#     - docker:dind
+#   script:
+#     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - docker build
+#         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+#         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+#         -f goveralls/Dockerfile
+#         --push
+#         goveralls
 
 .template:publish:
   tags:
@@ -287,21 +287,21 @@ build:goveralls:
     - echo -n $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
 
-publish:raspbian_latest:
-  extends: .template:publish
-  needs:
-    - job: build:raspbian_latest
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "rasbian_latest"
-  script:
-    # backward compatibility: pushing to the Docker Hub
-    - echo "publishing image to Docker Hub"
-    - docker load -i raspbianImage.tar
-    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
-    - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
-    # Gitlab registry
-    - *tag_n_push_to_gitlab_registry
+# publish:raspbian_latest:
+#   extends: .template:publish
+#   needs:
+#     - job: build:raspbian_latest
+#       artifacts: true
+#   variables:
+#     CONTAINER_TAG: "rasbian_latest"
+#   script:
+#     # backward compatibility: pushing to the Docker Hub
+#     - echo "publishing image to Docker Hub"
+#     - docker load -i raspbianImage.tar
+#     - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
+#     - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
+#     # Gitlab registry
+#     - *tag_n_push_to_gitlab_registry
 
 publish:acceptance-testing:
   extends: .template:publish
@@ -319,103 +319,103 @@ publish:acceptance-testing:
     # Gitlab registry
     - *tag_n_push_to_gitlab_registry
 
-publish:backend-integration-testing:
-  extends: .template:publish
-  needs:
-    - job: build:backend-integration-testing
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "backend-integration-testing"
-  script:
-    # backward compatibility: pushing to the Docker Hub
-    - echo "publishing image to Docker Hub"
-    - docker load -i integrationTestingImage.tar
-    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
-    - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
-    # Gitlab registry
-    - *tag_n_push_to_gitlab_registry
+# publish:backend-integration-testing:
+#   extends: .template:publish
+#   needs:
+#     - job: build:backend-integration-testing
+#       artifacts: true
+#   variables:
+#     CONTAINER_TAG: "backend-integration-testing"
+#   script:
+#     # backward compatibility: pushing to the Docker Hub
+#     - echo "publishing image to Docker Hub"
+#     - docker load -i integrationTestingImage.tar
+#     - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
+#     - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
+#     # Gitlab registry
+#     - *tag_n_push_to_gitlab_registry
 
-publish:gui-e2e-testing:
-  extends: .template:publish
-  needs:
-    - job: build:gui-e2e-testing
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "gui-e2e-testing"
-  script:
-    # backward compatibility: pushing to the Docker Hub
-    - apk add --no-cache aws-cli curl
-    - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
-    # Fetch from temporary S3 bucket
-    - mender_ci_load_tmp_artifact guiE2eTestingImage.tar
-    - echo "publishing image to Docker Hub"
-    - docker load -i guiE2eTestingImage.tar
-    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
-    - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
-    # Gitlab registry
-    - *tag_n_push_to_gitlab_registry
+# publish:gui-e2e-testing:
+#   extends: .template:publish
+#   needs:
+#     - job: build:gui-e2e-testing
+#       artifacts: true
+#   variables:
+#     CONTAINER_TAG: "gui-e2e-testing"
+#   script:
+#     # backward compatibility: pushing to the Docker Hub
+#     - apk add --no-cache aws-cli curl
+#     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
+#     # Fetch from temporary S3 bucket
+#     - mender_ci_load_tmp_artifact guiE2eTestingImage.tar
+#     - echo "publishing image to Docker Hub"
+#     - docker load -i guiE2eTestingImage.tar
+#     - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
+#     - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
+#     # Gitlab registry
+#     - *tag_n_push_to_gitlab_registry
 
-publish:mender-client-acceptance-testing:
-  extends: .template:publish
-  needs:
-    - job: build:mender-client-acceptance-testing
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "mender-client-acceptance-testing"
-  script:
-    # backward compatibility: pushing to the Docker Hub
-    - apk add --no-cache aws-cli curl
-    - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
-    # Fetch from temporary S3 bucket
-    - mender_ci_load_tmp_artifact qaTestingImage.tar
-    - echo "publishing image to Docker Hub"
-    - docker load -i qaTestingImage.tar
-    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
-    - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
-    # Gitlab registry
-    - *tag_n_push_to_gitlab_registry
+# publish:mender-client-acceptance-testing:
+#   extends: .template:publish
+#   needs:
+#     - job: build:mender-client-acceptance-testing
+#       artifacts: true
+#   variables:
+#     CONTAINER_TAG: "mender-client-acceptance-testing"
+#   script:
+#     # backward compatibility: pushing to the Docker Hub
+#     - apk add --no-cache aws-cli curl
+#     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
+#     # Fetch from temporary S3 bucket
+#     - mender_ci_load_tmp_artifact qaTestingImage.tar
+#     - echo "publishing image to Docker Hub"
+#     - docker load -i qaTestingImage.tar
+#     - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
+#     - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
+#     # Gitlab registry
+#     - *tag_n_push_to_gitlab_registry
 
-publish:aws-k8s-pipeline-toolbox:
-  extends: .template:publish
-  needs:
-    - job: build:aws-k8s-pipeline-toolbox
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "aws-k8s-v1"
-  script:
-    - *tag_n_push_to_gitlab_registry
+# publish:aws-k8s-pipeline-toolbox:
+#   extends: .template:publish
+#   needs:
+#     - job: build:aws-k8s-pipeline-toolbox
+#       artifacts: true
+#   variables:
+#     CONTAINER_TAG: "aws-k8s-v1"
+#   script:
+#     - *tag_n_push_to_gitlab_registry
 
-publish:docker-multiplatform-buildx:
-  extends: .template:publish
-  needs:
-    - job: build:docker-multiplatform-buildx
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "docker-multiplatform-buildx-v1"
-  script:
-    - *tag_n_push_to_gitlab_registry
+# publish:docker-multiplatform-buildx:
+#   extends: .template:publish
+#   needs:
+#     - job: build:docker-multiplatform-buildx
+#       artifacts: true
+#   variables:
+#     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
+#   script:
+#     - *tag_n_push_to_gitlab_registry
 
-publish:mender-dist-packages-image:
-  extends: .template:publish
-  needs:
-    # NOTE: We should depend on each of the jobs individually with:
-    # - "build:mender-dist-packages-image: [${DISTRO}, ${RELEASE}, ${ARCH}]"
-    # However GitLab does not seem to expand these variables on a dependencies
-    # key. Use arbitrary one of them and assume that they all passed (using
-    # depends instead of needs ensures that the whole previous build stage
-    # needs to pass, so it should be safe).
-    - "build:mender-dist-packages-image: [debian, bullseye, amd64]"
-  script:
-    - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
-    - *tag_n_push_to_gitlab_registry
-  parallel: !reference [.mender-dist-packages-image-matrix, parallel]
+# publish:mender-dist-packages-image:
+#   extends: .template:publish
+#   needs:
+#     # NOTE: We should depend on each of the jobs individually with:
+#     # - "build:mender-dist-packages-image: [${DISTRO}, ${RELEASE}, ${ARCH}]"
+#     # However GitLab does not seem to expand these variables on a dependencies
+#     # key. Use arbitrary one of them and assume that they all passed (using
+#     # depends instead of needs ensures that the whole previous build stage
+#     # needs to pass, so it should be safe).
+#     - "build:mender-dist-packages-image: [debian, bullseye, amd64]"
+#   script:
+#     - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
+#     - *tag_n_push_to_gitlab_registry
+#   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
 
-publish:goveralls:
-  extends: .template:publish
-  needs:
-    - job: build:goveralls
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "goveralls"
-  script:
-    - *tag_n_push_to_gitlab_registry
+# publish:goveralls:
+#   extends: .template:publish
+#   needs:
+#     - job: build:goveralls
+#       artifacts: true
+#   variables:
+#     CONTAINER_TAG: "goveralls"
+#   script:
+#     - *tag_n_push_to_gitlab_registry
