@@ -249,6 +249,14 @@ function install_packages_to_toolchain_root() {
     done
 }
 
+# We do not want to dynamically link with libssp. Therefore remove it to force static linking.
+# MEN-6911
+function remove_libssp_shared_libs() {
+    [[ $# -ne 1 ]] && { echo "One argument only required. Got $#"; exit 1; }
+    local -r prefix="$1"
+    rm --force ${prefix}/cross-pi-gcc-*/arm-linux-gnueabihf/lib/libssp.so*
+}
+
 function install_toolchain() {
     [[ $# -ne 1 ]] && { echo "One argument only required. Got $#"; exit 1; }
 
@@ -261,6 +269,8 @@ function install_toolchain() {
     eval setup_pkg_config \${${toolchain}[packagecache]} \${${toolchain}[packageurl]}
 
     eval install_packages_to_toolchain_root \${${toolchain}[sysroot]} \${${toolchain}[packagecache]} \${${req_pkgs}[@]}
+
+    eval remove_libssp_shared_libs \${${toolchain}[prefix]}
 }
 
 #
@@ -268,7 +278,3 @@ function install_toolchain() {
 #
 
 install_toolchain cross_pi_toolchain_${RASPBIAN_VERSION}
-
-
-
-
