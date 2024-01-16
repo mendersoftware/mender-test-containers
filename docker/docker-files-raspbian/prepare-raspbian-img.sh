@@ -79,6 +79,17 @@ sudo mount -o loop,offset=$offset ${raspbian_filename_img} img-rootfs
 sudo mkdir img-rootfs/home/pi/.ssh
 cat ${scriptdir}/../ssh-keys/key.pub | sudo tee img-rootfs/home/pi/.ssh/authorized_keys
 sudo ln -s /lib/systemd/system/ssh.service img-rootfs/etc/systemd/system/multi-user.target.wants/ssh.service
+
+# Allow APT Suite change in the release info
+#
+# Upstream repository http://raspbian.raspberrypi.org/raspbian has changed buster
+# release suite from "stable" to "oldstable". The following configuration option
+# allows APT to update without user interaction.
+# This is the default un newer versions of apt, see:
+#   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=931566
+#
+echo 'Acquire::AllowReleaseInfoChange::Suite "true";' | sudo tee img-rootfs/etc/apt/apt.conf.d/99release-change-suite
+
 sudo umount img-rootfs
 rmdir img-rootfs
 
