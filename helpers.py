@@ -13,13 +13,14 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import logging
 import os
+import packaging.version
 import re
-import signal
 import stat
 import subprocess
 import time
-import logging
+
 from fabric import Config
 from fabric import Connection
 from paramiko import SSHException
@@ -176,3 +177,14 @@ def _probe_ssh_connection(conn):
             time.sleep(5)
 
     return ready
+
+
+def version_is_minimum(mender_deb_version, min_version):
+    try:
+        version_parsed = packaging.version.Version(mender_deb_version)
+    except packaging.version.InvalidVersion:
+        # Indicates that 'mender_deb_version' is likely a string (branch name).
+        # Always consider them higher than the minimum version.
+        return True
+
+    return version_parsed >= packaging.version.Version(min_version)
