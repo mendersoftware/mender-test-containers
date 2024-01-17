@@ -13,15 +13,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import pytest
-import re
-import requests
-import subprocess
-import time
-import os.path
 import logging
-
-from fabric import Connection
+import os.path
+import pytest
+import subprocess
+import urllib
 
 from .helpers import *
 
@@ -80,35 +76,39 @@ def setup_mender_configured(
     setup_test_container, setup_tester_ssh_connection, mender_deb_version
 ):
     if (
-        setup_tester_ssh_connection.run("test -x /usr/bin/mender", warn=True).exited
+        setup_tester_ssh_connection.run(
+            "test -x /usr/bin/mender-update", warn=True
+        ).exited
+        == 0
+        or setup_tester_ssh_connection.run("test -x /usr/bin/mender", warn=True).exited
         == 0
     ):
         # If mender is already present, do nothing.
         return
 
+    if version_is_minimum(mender_deb_version, "4.0.0"):
+        pkgs_to_install = ["mender-auth", "mender-update"]
+    else:
+        pkgs_to_install = ["mender-client"]
+
     url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client/"
-    url += f"mender-client_{mender_deb_version}-1%2bdebian%2bbuster_armhf.deb"
-    filename = os.path.basename(url)
-    c = requests.get(url, stream=True)
-    with open(filename, "wb") as fd:
-        fd.write(c.raw.read())
-
-    try:
-        put(
-            setup_tester_ssh_connection,
-            filename,
-            key_filename=setup_test_container.key_filename,
-        )
+    for pkg in pkgs_to_install:
+        pkg_url = url + f"{pkg}_{mender_deb_version}-1%2bdebian%2bbuster_armhf.deb"
+        filename = urllib.parse.unquote(os.path.basename(pkg_url))
         # Install deb package and missing dependencies
-        setup_tester_ssh_connection.sudo(
-            "DEBIAN_FRONTEND=noninteractive dpkg -i %s || sudo apt-get -f -y install"
-            % filename
+        setup_tester_ssh_connection.run(f"wget {pkg_url}")
+        result = setup_tester_ssh_connection.sudo(
+            f"DEBIAN_FRONTEND=noninteractive dpkg --install {filename}", warn=True
         )
-    finally:
-        os.remove(filename)
+        if result.exited != 0:
+            setup_tester_ssh_connection.sudo("apt-get update")
+            setup_tester_ssh_connection.sudo(
+                "apt-get --fix-broken --assume-yes install"
+            )
 
-    # Verify that the package was installed
-    setup_tester_ssh_connection.run("dpkg --status mender-client")
+    # Verify that the packages were installed
+    for pkg in pkgs_to_install:
+        setup_tester_ssh_connection.run(f"dpkg --status {pkg}")
 
     output = setup_tester_ssh_connection.run("uname -m").stdout.strip()
     if output == "x86_64":
@@ -116,9 +116,9 @@ def setup_mender_configured(
     elif output.startswith("arm"):
         device_type = "generic-armv6"
     else:
-        raise KeyError("%s is not a recognized machine type" % output)
+        raise KeyError(f"{output} is not a recognized machine type")
 
     setup_tester_ssh_connection.sudo("mkdir -p /var/lib/mender")
     setup_tester_ssh_connection.run(
-        "echo device_type=%s | sudo tee /var/lib/mender/device_type" % device_type
+        f"echo device_type={device_type} | sudo tee /var/lib/mender/device_type"
     )
