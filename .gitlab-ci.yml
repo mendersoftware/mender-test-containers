@@ -450,3 +450,92 @@ publish:mongodb-backup-runner:
   script:
     - *tag_n_push_to_gitlab_registry
 
+.template:trigger:acceptance-testing:
+  stage: test
+  needs:
+    - job: build:acceptance-testing
+      artifacts: false
+  inherit:
+    variables: false
+  variables:
+    CONTAINER_TAG: "acceptance-testing"
+    MENDER_TEST_CONTAINERS_CANDIDATE_TAG: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+
+trigger:acceptance-testing:inventory-enterprise:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/inventory-enterprise
+    strategy: depend
+
+trigger:acceptance-testing:mtls-ambassador:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/mtls-ambassador
+    strategy: depend
+
+trigger:acceptance-testing:mender-gateway:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/mender-gateway
+    strategy: depend
+
+trigger:acceptance-testing:deployments-enterprise:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/deployments-enterprise
+    strategy: depend
+
+trigger:acceptance-testing:useradm-enterprise:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/useradm-enterprise
+    strategy: depend
+
+trigger:acceptance-testing:auditlogs:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/auditlogs
+    strategy: depend
+
+trigger:acceptance-testing:deviceconfig:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/deviceconfig
+    strategy: depend
+
+trigger:acceptance-testing:deviceauth:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/deviceauth
+    strategy: depend
+
+trigger:acceptance-testing:deviceauth-enterprise:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/deviceauth-enterprise
+    strategy: depend
+
+trigger:acceptance-testing:inventory:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/inventory
+    strategy: depend
+
+trigger:acceptance-testing:tenantadm:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/tenantadm
+    strategy: depend
+
+trigger:acceptance-testing:useradm:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/useradm
+    strategy: depend
+
+trigger:acceptance-testing:deployments:
+  extends: .template:trigger:acceptance-testing
+  trigger:
+    project: Northern.tech/Mender/deployments
+    strategy: depend
+
