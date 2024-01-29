@@ -461,6 +461,19 @@ publish:mongodb-backup-runner:
     CONTAINER_TAG: "acceptance-testing"
     MENDER_TEST_CONTAINERS_CANDIDATE_TAG: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
 
+trigger:backend-integration-testing:
+  stage: test
+  needs:
+    - job: build:backend-integration-testing
+      artifacts: false
+  inherit:
+    variables: false
+  variables:
+    CONTAINER_TAG: "backend-integration-testing"
+    MENDER_TEST_CONTAINERS_CANDIDATE_TAG: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+    RUN_BACKEND_INTEGRATION_TESTS: "true"
+    RUN_INTEGRATION_TESTS: "false"
+
 trigger:acceptance-testing:inventory-enterprise:
   extends: .template:trigger:acceptance-testing
   trigger:
