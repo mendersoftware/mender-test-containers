@@ -6,7 +6,7 @@ flaky==3.7.0
 flask
 jsonschema<4.0
 minio==5.0.6
-pluggy==1.0.0
+pluggy==1.4.0
 pycrypto
 pymongo==4.3.3
 pytest-ordering==0.6
