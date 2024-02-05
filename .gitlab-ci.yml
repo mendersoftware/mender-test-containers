@@ -417,7 +417,7 @@ publish:docker-multiplatform-buildx:
 
 publish:mender-dist-packages-image:
   extends: .template:publish
-  needs:
+  dependencies:
     # NOTE: We should depend on each of the jobs individually with:
     # - "build:mender-dist-packages-image: [${DISTRO}, ${RELEASE}, ${ARCH}]"
     # However GitLab does not seem to expand these variables on a dependencies
