@@ -12,7 +12,7 @@ pymongo==4.3.3
 pytest-ordering==0.6
 pytest==8.0.0
 pyyaml
-redis==4.5.4
+redis==5.0.1
 redo==2.0.4
 requests
 semver==3.0.2
