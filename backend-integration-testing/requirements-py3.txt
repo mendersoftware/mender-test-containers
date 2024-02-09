@@ -20,7 +20,7 @@ pycparser==2.21
 pymongo==4.6.1
 pyotp==2.6.0
 pyparsing==3.0.9
-pytest==7.3.2
+pytest==8.0.0
 pytest-forked==1.4.0
 pytest-html==4.1.1
 pytest-httpserver==1.0.8
