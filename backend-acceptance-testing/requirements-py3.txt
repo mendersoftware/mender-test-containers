@@ -1,11 +1,11 @@
-bravado==9.2.2
+bravado==11.0.3
 crypto
 cryptography==42.0.5
 docker==7.0.0
 flaky==3.7.0
 flask
-jsonschema<4.0
-minio==7.2.4
+jsonschema<5.0
+minio==7.2.5
 pluggy==1.4.0
 pycrypto
 pymongo==4.6.2
@@ -20,4 +20,4 @@ stripe
 tornado
 twisted
 tz
-urllib3<2
+urllib3<3
