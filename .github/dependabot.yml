@@ -6,7 +6,10 @@ updates:
     package-ecosystem: docker
     schedule:
       interval: monthly
-      day: saturday
+    groups:
+      docker-backend-acc-tests-dependencies:
+        patterns:
+          - "*"
     reviewers:
       - "mendersoftware/backend-dependabot-reviewers"
   - commit-message:
@@ -16,7 +19,10 @@ updates:
     package-ecosystem: pip
     schedule:
       interval: monthly
-      day: saturday
+    groups:
+      python-backend-acc-tests-dependencies:
+        patterns:
+          - "*"
     reviewers:
       - "mendersoftware/backend-dependabot-reviewers"
   - commit-message:
@@ -25,7 +31,10 @@ updates:
     package-ecosystem: docker
     schedule:
       interval: monthly
-      day: saturday
+    groups:
+      docker-backend-int-tests-dependencies:
+        patterns:
+          - "*"
     reviewers:
       - "mendersoftware/backend-dependabot-reviewers"
   - commit-message:
@@ -35,7 +44,10 @@ updates:
     package-ecosystem: pip
     schedule:
       interval: monthly
-      day: saturday
+    groups:
+      python-backend-int-tests-dependencies:
+        patterns:
+          - "*"
     reviewers:
       - "mendersoftware/backend-dependabot-reviewers"
   - commit-message:
@@ -44,7 +56,10 @@ updates:
     package-ecosystem: docker
     schedule:
       interval: monthly
-      day: saturday
+    groups:
+      docker-gui-e2e-tests-dependencies:
+        patterns:
+          - "*"
     reviewers:
       - "mendersoftware/frontend-dependabot-reviewers"
   - commit-message:
@@ -53,7 +68,6 @@ updates:
     package-ecosystem: docker
     schedule:
       interval: monthly
-      day: saturday
     reviewers:
       - "mendersoftware/client-dependabot-reviewers"
   - commit-message:
@@ -63,7 +77,6 @@ updates:
     package-ecosystem: pip
     schedule:
       interval: monthly
-      day: saturday
     reviewers:
       - "mendersoftware/client-dependabot-reviewers"
   - commit-message:
@@ -72,7 +85,6 @@ updates:
     package-ecosystem: docker
     schedule:
       interval: monthly
-      day: saturday
     reviewers:
       - "mendersoftware/client-dependabot-reviewers"
   - commit-message:
@@ -81,6 +93,9 @@ updates:
     package-ecosystem: docker
     schedule:
       interval: monthly
-      day: saturday
+    groups:
+      docker-aws-k8s-toolbox-dependencies:
+        patterns:
+          - "*"
     reviewers:
       - "mendersoftware/qa-dependabot-reviewers"
