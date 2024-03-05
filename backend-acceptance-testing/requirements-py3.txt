@@ -1,6 +1,6 @@
 bravado==9.2.2
 crypto
-cryptography==42.0.4
+cryptography==42.0.5
 docker==7.0.0
 flaky==3.7.0
 flask
