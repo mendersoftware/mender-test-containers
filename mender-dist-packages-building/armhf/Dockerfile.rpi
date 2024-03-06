@@ -1,0 +1,17 @@
+FROM scratch
+ADD output/rootfs.tar.xz /
+ARG RELEASE
+
+# Make qemu emulate arm v6 and not arm v7
+ENV QEMU_CPU arm1176
+
+RUN debootstrap/debootstrap --second-stage
+
+ENV DEBIAN_FRONTEND noninteractive
+
+COPY requirements.txt .
+RUN apt-get update && \
+	apt-get install -y $(cat requirements.txt)
+
+COPY buster_add_boost.sh .
+RUN if [ "${RELEASE}" = "buster" ]; then ./buster_add_boost.sh; fi
