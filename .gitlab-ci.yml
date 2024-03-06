@@ -214,25 +214,24 @@ build:aws-k8s-pipeline-toolbox:
 
 build:mender-dist-packages-image:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy-privileged
   stage: build
   needs: []
   image: docker:git
   services:
     - docker:dind
   script:
+    - apk add bash
     - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --build-arg DISTRO=${DISTRO}
-        --build-arg VERSION=${RELEASE}
-        --build-arg ARCH=${ARCH}
-        -f mender-dist-packages-building/Dockerfile
-        --push
-        mender-dist-packages-building
+    - cd mender-dist-packages-building
+    - ./build.sh
+         --container-tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
+         --distro ${DISTRO}
+         --release ${RELEASE}
+         --arch ${ARCH}
+         --ci-pipeline-id ${CI_PIPELINE_ID}
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
 
 build:docker-multiplatform-buildx:
@@ -522,4 +521,3 @@ trigger:acceptance-testing:tenantadm:
   trigger:
     project: Northern.tech/Mender/tenantadm
     strategy: depend
-
