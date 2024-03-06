@@ -74,7 +74,7 @@ if [ "$ARCH" = "armhf" -a $DISTRO = "debian" ]; then
 else
     docker build \
         --cache-from ${CONTAINER_TAG}-master \
-        --tag ${CONTAINER_TAG}\
+        --tag ${CONTAINER_TAG}-${CI_PIPELINE_ID} \
         --build-arg DISTRO \
         --build-arg RELEASE \
         --build-arg ARCH \
