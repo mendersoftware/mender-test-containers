@@ -18,8 +18,8 @@ variables:
 
 .tag_n_push_to_gitlab_registry: &tag_n_push_to_gitlab_registry
   - docker pull ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-  - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-  - docker push ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+  - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
+  - docker push ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
 
 include:
   - project: 'Northern.tech/Mender/mendertesting'
@@ -424,6 +424,9 @@ publish:mender-dist-packages-image:
     # depends instead of needs ensures that the whole previous build stage
     # needs to pass, so it should be safe).
     - "build:mender-dist-packages-image: [debian, bullseye, amd64]"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "feature-armhf-native"
   script:
     - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
     - *tag_n_push_to_gitlab_registry
