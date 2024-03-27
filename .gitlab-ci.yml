@@ -36,7 +36,7 @@ stages:
 
 build:prepare:raspbian:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
   image: buildpack-deps:scm
@@ -52,7 +52,7 @@ build:prepare:raspbian:
 
 build:raspbian_latest:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs:
     - job: build:prepare:raspbian
@@ -80,7 +80,7 @@ build:raspbian_latest:
 
 build:acceptance-testing:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
@@ -106,7 +106,7 @@ build:acceptance-testing:
 
 build:gui-e2e-testing:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
@@ -134,7 +134,7 @@ build:gui-e2e-testing:
 
 build:backend-integration-testing:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
@@ -160,7 +160,7 @@ build:backend-integration-testing:
 build:mender-client-acceptance-testing:
   tags:
     # KVM support requires the same type of GCP machine as the tests will use
-    - mender-qa-worker-client-acceptance-tests
+    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
@@ -188,7 +188,7 @@ build:mender-client-acceptance-testing:
 
 build:aws-k8s-pipeline-toolbox:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   image: docker
   needs: []
@@ -214,7 +214,7 @@ build:aws-k8s-pipeline-toolbox:
 
 build:mender-dist-packages-image:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
   image: docker:git
@@ -237,7 +237,7 @@ build:mender-dist-packages-image:
 
 build:docker-multiplatform-buildx:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   image: docker
   needs: []
@@ -257,7 +257,7 @@ build:docker-multiplatform-buildx:
 
 build:goveralls:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   image: docker
   needs: []
@@ -277,7 +277,7 @@ build:goveralls:
 
 build:mongodb-backup-runner:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   image: docker
   needs: []
@@ -297,7 +297,7 @@ build:mongodb-backup-runner:
 
 .template:publish:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: publish
   services:
     - docker:dind
