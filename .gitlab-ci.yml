@@ -217,6 +217,10 @@ build:mender-dist-packages-image:
     - hetzner-amd-beefy-privileged
   stage: build
   needs: []
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "feature-armhf-native"
+    - when: manual
   image: docker:git
   services:
     - docker:dind
