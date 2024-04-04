@@ -13,5 +13,5 @@ COPY requirements.txt .
 RUN apt-get update && \
 	apt-get install -y $(cat requirements.txt)
 
-COPY buster_add_boost.sh .
-RUN if [ "${RELEASE}" = "buster" ]; then ./buster_add_boost.sh; fi
+COPY buster_add_cmake.sh .
+RUN if [ "${RELEASE}" = "buster" ]; then ./buster_add_cmake.sh; fi
