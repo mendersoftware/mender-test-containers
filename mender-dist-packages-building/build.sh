@@ -36,6 +36,7 @@ for var in CONTAINER_TAG DISTRO RELEASE ARCH CI_PIPELINE_ID; do
         echo -e "Variable $var not set."
     fi
 done
+export CONTAINER_TAG DISTRO RELEASE ARCH CI_PIPELINE_ID
 
 if [ $required_arguments == false ]; then
     echo -e "Provide the following arguments:\n$build_arguments"
@@ -49,7 +50,7 @@ if [ "$ARCH" = "armhf" -a "$DISTRO" = "debian" ]; then
     # Build an image to boostrap raspian
     docker build \
         --tag mkimage \
-        --build-arg RELEASE=$RELEASE \
+        --build-arg RELEASE \
         --file armhf/Dockerfile.bootstrap \
         armhf
 
