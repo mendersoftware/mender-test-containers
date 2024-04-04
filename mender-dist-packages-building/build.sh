@@ -42,7 +42,7 @@ if [ $required_arguments == false ]; then
     exit 1
 fi
 
-if [ "$ARCH" = "armhf" -a $DISTRO = "debian" ]; then
+if [ "$ARCH" = "armhf" -a "$DISTRO" = "debian" ]; then
     # Move requirements.txt to be in correct build context
     cp requirements.txt armhf/
 
