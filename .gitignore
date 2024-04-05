@@ -4,3 +4,6 @@
 /docker/docker-files-raspbian/*-raspbian-mender-testing.img
 /docker/docker-files-raspbian/kernel-qemu-*
 /docker/docker-files-raspbian/versatile-pb*.dtb
+
+# File copied from the script when building armhf images
+/mender-dist-packages-building/armhf/requirements.txt
