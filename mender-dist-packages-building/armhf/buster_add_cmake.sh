@@ -7,9 +7,6 @@ set -e
 CMAKE_VERSION="v3.21.6"
 _CMAKE_VERSION=$(echo "$CMAKE_VERSION" | sed 's/v//')
 
-# Remove buster's upstream cmake
-apt-get remove --assume-yes cmake cmake-data
-
 # Build cmake from source
 wget https://github.com/Kitware/CMake/releases/download/$CMAKE_VERSION/cmake-$_CMAKE_VERSION.tar.gz
 tar -xf cmake-$_CMAKE_VERSION.tar.gz
