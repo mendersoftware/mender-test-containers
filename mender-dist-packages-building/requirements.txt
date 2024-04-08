@@ -1,0 +1,13 @@
+build-essential
+dh-make
+git
+wget
+curl
+debhelper
+devscripts
+equivs
+pkg-config
+liblzma-dev
+libssl-dev
+libsystemd-dev
+libglib2.0-dev
