@@ -10,7 +10,7 @@ variables:
   parallel:
     matrix:
       - DISTRO: debian
-        RELEASE: [buster, bullseye, bookworm]
+        RELEASE: [bullseye, bookworm]
         ARCH: [amd64, armhf, arm64]
       - DISTRO: ubuntu
         RELEASE: [focal, jammy]
