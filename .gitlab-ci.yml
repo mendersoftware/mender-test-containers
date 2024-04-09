@@ -458,6 +458,8 @@ publish:mongodb-backup-runner:
 
 trigger:backend-integration-testing:mender-qa:
   stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH != "master"
   needs:
     - job: build:backend-integration-testing
       artifacts: false
@@ -490,6 +492,8 @@ trigger:backend-integration-testing:mender-qa:
 
 .template:trigger:acceptance-testing:
   stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH != "master"
   needs:
     - job: build:acceptance-testing
       artifacts: false
