@@ -219,7 +219,6 @@ build:mender-dist-packages-image:
   needs: []
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH == "feature-armhf-native"
     - when: manual
   image: docker:git
   services:
@@ -430,7 +429,6 @@ publish:mender-dist-packages-image:
     - "build:mender-dist-packages-image: [debian, bullseye, amd64]"
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH == "feature-armhf-native"
   script:
     - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
     - *tag_n_push_to_gitlab_registry
