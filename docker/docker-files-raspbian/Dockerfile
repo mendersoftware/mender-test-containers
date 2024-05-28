@@ -13,14 +13,14 @@ RUN mkdir /testing
 
 RUN apk add --no-cache qemu-system-arm
 
-COPY ${version}-raspbian-mender-testing.img /testing/
-COPY kernel-qemu-4.19.50-buster /testing/
-COPY versatile-pb-buster.dtb /testing/
+COPY ${version}-raspios-bullseye-armhf-lite-mender-testing.img /testing/
+COPY kernel-qemu-5.10.63-bullseye /testing/
+COPY versatile-pb-bullseye-5.10.63.dtb /testing/
 
-ENTRYPOINT /usr/bin/qemu-system-arm -kernel /testing/kernel-qemu-4.19.50-buster \
-           -dtb /testing/versatile-pb-buster.dtb -m 256 -M versatilepb \
+ENTRYPOINT /usr/bin/qemu-system-arm -kernel /testing/kernel-qemu-5.10.63-bullseye \
+           -dtb /testing/versatile-pb-bullseye-5.10.63.dtb -m 256 -M versatilepb \
            -cpu arm1176 -nographic -append \
            "rw console=ttyAMA0 root=/dev/sda2 rootfstype=ext4 loglevel=8 rootwait fsck.repair=yes memtest=1" \
-           -drive file=/testing/${version}-raspbian-mender-testing.img,format=raw \
+           -drive file=/testing/${version}-raspios-bullseye-armhf-lite-mender-testing.img,format=raw \
            -device virtio-net-pci,netdev=unet \
            -netdev user,id=unet,hostfwd=tcp::8822-:22

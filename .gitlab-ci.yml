@@ -1,7 +1,7 @@
 image: docker:git
 
 variables:
-  RASPBIAN_VERSION: '2019-07-10'
+  RASPBIAN_VERSION: '2023-05-03'
   DOCKER_REPOSITORY: 'mendersoftware/mender-test-containers'
   DOCKER_HUB_USERNAME: 'menderbuildsystem'
   DOCKER_BUILDKIT: 1
@@ -42,7 +42,7 @@ build:prepare:raspbian:
   image: buildpack-deps:scm
   script:
     - cd docker/docker-files-raspbian
-    - apt-get update && apt-get install -yyq sudo unzip fdisk
+    - apt-get update && apt-get install -yyq sudo unzip xz-utils fdisk
     - ./prepare-raspbian-img.sh ${RASPBIAN_VERSION}
     - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
   artifacts:
@@ -71,7 +71,7 @@ build:raspbian_latest:
         --build-arg raspbian_version=${RASPBIAN_VERSION}
         --push
         docker-files-raspbian
-    # Upload to artifact storage left for backwards compatiblity
+    # Upload to artifact storage left for backwards compatibility
     - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > raspbianImage.tar
   artifacts:
     expire_in: 2w
@@ -97,7 +97,7 @@ build:acceptance-testing:
         --build-arg raspbian_version=${RASPBIAN_VERSION}
         --push
         backend-acceptance-testing
-    # Upload to artifact storage left for backwards compatiblity
+    # Upload to artifact storage left for backwards compatibility
     - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > acceptanceTestingImage.tar
   artifacts:
     expire_in: 2w
@@ -126,7 +126,7 @@ build:gui-e2e-testing:
         --push
         gui-e2e-testing
     - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > guiE2eTestingImage.tar
-    # Upload to temporary S3 bucket left for backwards compatiblity
+    # Upload to temporary S3 bucket left for backwards compatibility
     - mender_ci_save_tmp_artifact guiE2eTestingImage.tar
   artifacts:
     paths:
@@ -150,7 +150,7 @@ build:backend-integration-testing:
         -f backend-integration-testing/Dockerfile
         --push
         backend-integration-testing
-    # Upload to artifact storage left for backwards compatiblity
+    # Upload to artifact storage left for backwards compatibility
     - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > integrationTestingImage.tar
   artifacts:
     expire_in: 2w
