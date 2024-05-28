@@ -93,7 +93,7 @@ def setup_mender_configured(
 
     url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client/"
     for pkg in pkgs_to_install:
-        pkg_url = url + f"{pkg}_{mender_deb_version}-1%2bdebian%2bbuster_armhf.deb"
+        pkg_url = url + f"{pkg}_{mender_deb_version}-1%2Bdebian%2Bbullseye_armhf.deb"
         filename = urllib.parse.unquote(os.path.basename(pkg_url))
         # Install deb package and missing dependencies
         setup_tester_ssh_connection.run(f"wget {pkg_url}")
