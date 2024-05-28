@@ -49,7 +49,7 @@ class ContainerProps:
 
 
 MenderTestRaspbian = ContainerProps(
-    image_name="registry.gitlab.com/northern.tech/mender/mender-test-containers:rasbian_latest-master",
+    image_name="registry.gitlab.com/northern.tech/mender/mender-test-containers:raspios-bullseye-1310141700",
     device_type="raspberrypi3",
     key_filename=os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "docker/ssh-keys/key"
