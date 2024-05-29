@@ -1,7 +1,7 @@
 image: docker:git
 
 variables:
-  RASPBIAN_VERSION: '2019-07-10'
+  RASPIOS_VERSION: '2023-05-03'
   DOCKER_REPOSITORY: 'mendersoftware/mender-test-containers'
   DOCKER_HUB_USERNAME: 'menderbuildsystem'
   DOCKER_BUILDKIT: 1
@@ -34,7 +34,7 @@ stages:
   - test
   - publish
 
-build:prepare:raspbian:
+build:prepare:raspios:
   tags:
     - mender-qa-worker-generic-light
   stage: build
@@ -42,25 +42,25 @@ build:prepare:raspbian:
   image: buildpack-deps:scm
   script:
     - cd docker/docker-files-raspbian
-    - apt-get update && apt-get install -yyq sudo unzip fdisk
-    - ./prepare-raspbian-img.sh ${RASPBIAN_VERSION}
+    - apt-get update && apt-get install -yyq sudo unzip xz-utils fdisk
+    - ./prepare-raspbian-img.sh ${RASPIOS_VERSION}
     - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
   artifacts:
     expire_in: 2w
     paths:
       - docker-files-raspbian.tar
 
-build:raspbian_latest:
+build:raspios:
   tags:
     - mender-qa-worker-generic-light
   stage: build
   needs:
-    - job: build:prepare:raspbian
+    - job: build:prepare:raspios
       artifacts: true
   services:
     - docker:dind
   variables:
-    CONTAINER_TAG: "rasbian_latest"
+    CONTAINER_TAG: "raspios-bullseye"
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -68,7 +68,7 @@ build:raspbian_latest:
     - docker build
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --build-arg raspbian_version=${RASPBIAN_VERSION}
+        --build-arg raspios_version=${RASPIOS_VERSION}
         --push
         docker-files-raspbian
     # Upload to artifact storage left for backwards compatibility
@@ -94,7 +94,7 @@ build:acceptance-testing:
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -f backend-acceptance-testing/Dockerfile.backend-tests
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --build-arg raspbian_version=${RASPBIAN_VERSION}
+        --build-arg raspbian_version=${RASPIOS_VERSION}
         --push
         backend-acceptance-testing
     # Upload to artifact storage left for backwards compatibility
@@ -315,13 +315,13 @@ build:mongodb-backup-runner:
     - echo -n $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
 
-publish:raspbian_latest:
+publish:raspios-bullseye:
   extends: .template:publish
   needs:
-    - job: build:raspbian_latest
+    - job: build:raspios
       artifacts: true
   variables:
-    CONTAINER_TAG: "rasbian_latest"
+    CONTAINER_TAG: "raspios-bullseye"
   script:
     # backward compatibility: pushing to the Docker Hub
     - echo "publishing image to Docker Hub"
