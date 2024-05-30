@@ -151,8 +151,11 @@ def wait_for_container_boot(docker_container_id):
         )
 
         # Check on the last few chars only, so that we can detect reboots
+        # For Raspberry Pi OS, the tty prompt comes earlier than the SSH server, so wait for the later
         if re.search(
-            "(Poky|GNU/Linux).* tty", output.decode("utf-8")[-1000:], flags=re.MULTILINE
+            "(Poky.* tty|Started.*OpenBSD Secure Shell server)",
+            output.decode("utf-8")[-1000:],
+            flags=re.MULTILINE,
         ):
             ready = True
 
