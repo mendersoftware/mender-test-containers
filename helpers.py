@@ -79,6 +79,15 @@ class Connection:
 
             return Result(stdout, stderr, returncode)
 
+    def put(self, file, key_filename=None, local_path=".", remote_path="."):
+        if not key_filename:
+            key_filename = self.key_filename
+        return put(self, file, key_filename, local_path, remote_path)
+
+    def sudo(self, command, warn=False):
+        sudo_command = f"sudo {command}"
+        return self.run(sudo_command, warn)
+
     def __exit__(self, arg1, arg2, arg3):
         pass
 
