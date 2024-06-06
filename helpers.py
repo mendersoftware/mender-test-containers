@@ -42,7 +42,14 @@ class Connection:
     def __enter__(self):
         return self
 
+    def get_ssh_command(self):
+        return f"ssh {self.key} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout={self.connect_timeout} -p {self.port} {self.user}@{self.host}"
+
     def run(self, command, warn=False, hide=True, echo=False, popen=False):
+        if not command.startswith("ssh") and not command.startswith("scp"):
+            command = f"{self.get_ssh_command()} '{command}'"
+
+        logging.debug(command)
         if echo:
             print(command)
 
