@@ -227,10 +227,7 @@ def _probe_ssh_connection(conn):
             if result.exited == 0:
                 ready = True
         except ConnectionError as e:
-            if not (
-                str(e).endswith("Connection reset by peer")
-                or str(e).endswith("Error reading SSH protocol banner")
-            ):
+            if not "Could not connect using command" in str(e):
                 raise e
             time.sleep(5)
 
