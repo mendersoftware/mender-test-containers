@@ -31,11 +31,13 @@ class Result:
 
 
 class Connection:
-    def __init__(self, host, user, port, connect_timeout):
+    def __init__(self, host, user, port, connect_timeout, key_filename=None):
         self.host = host
         self.user = user
         self.port = port
         self.connect_timeout = connect_timeout
+        self.key_filename = key_filename
+        self.key = _prepare_key_arg(key_filename)
 
     def __enter__(self):
         return self
@@ -168,6 +170,7 @@ def new_tester_ssh_connection(setup_test_container):
         host="localhost",
         user=setup_test_container.user,
         port=setup_test_container.port,
+        key_filename=setup_test_container.key_filename,
         connect_timeout=60,
     ) as conn:
 
