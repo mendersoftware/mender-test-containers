@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright 2022 Northern.tech AS
+# Copyright 2024 Northern.tech AS
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -21,9 +21,75 @@ import stat
 import subprocess
 import time
 
-from fabric import Config
-from fabric import Connection
-from paramiko import SSHException
+
+class Result:
+    def __init__(self, stdout, stderr, exited):
+        self.stdout = stdout
+        self.stderr = stderr
+        self.exited = exited
+        self.return_code = exited
+
+
+class Connection:
+    def __init__(self, host, user, port, connect_timeout, key_filename=None):
+        self.host = host
+        self.user = user
+        self.port = port
+        self.connect_timeout = connect_timeout
+        self.key_filename = key_filename
+        self.key = _prepare_key_arg(key_filename)
+
+    def __enter__(self):
+        return self
+
+    def get_ssh_command(self):
+        return f"ssh {self.key} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout={self.connect_timeout} -p {self.port} {self.user}@{self.host}"
+
+    def run(self, command, warn=False, hide=True, echo=False, popen=False):
+        if not command.startswith("ssh") and not command.startswith("scp"):
+            command = f"{self.get_ssh_command()} '{command}'"
+
+        logging.debug(command)
+        if echo:
+            print(command)
+
+        if popen:
+            return subprocess.Popen(command)
+        else:
+            try:
+                proc = subprocess.run(
+                    command, check=not warn, capture_output=True, shell=True
+                )
+                returncode = proc.returncode
+
+            except subprocess.CalledProcessError as e:
+                returncode = e.returncode
+                if returncode != 255:
+                    raise
+
+            if returncode == 255:
+                raise ConnectionError(f"Could not connect using command '{command}'")
+
+            stdout = proc.stdout.decode()
+            stderr = proc.stderr.decode()
+
+            if not hide:
+                print(stdout)
+                print(stderr)
+
+            return Result(stdout, stderr, returncode)
+
+    def put(self, file, key_filename=None, local_path=".", remote_path="."):
+        if not key_filename:
+            key_filename = self.key_filename
+        return put(self, file, key_filename, local_path, remote_path)
+
+    def sudo(self, command, warn=False):
+        sudo_command = f"sudo {command}"
+        return self.run(sudo_command, warn)
+
+    def __exit__(self, arg1, arg2, arg3):
+        pass
 
 
 def _prepare_key_arg(key_filename):
@@ -50,7 +116,7 @@ def put(conn, file, key_filename=None, local_path=".", remote_path="."):
         )
     )
     logging.debug(cmd)
-    conn.local(cmd)
+    conn.run(cmd)
 
 
 def run(conn, command, key_filename=None, warn=False):
@@ -60,7 +126,7 @@ def run(conn, command, key_filename=None, warn=False):
         % (key_arg, conn.port, conn.user, conn.host, command)
     )
     logging.debug(cmd)
-    result = conn.local(cmd, warn=warn)
+    result = conn.run(cmd, warn=warn)
     return result
 
 
@@ -116,22 +182,12 @@ class PortForward:
 
 
 def new_tester_ssh_connection(setup_test_container):
-    config_hide = Config()
-    config_hide.run.hide = True
     with Connection(
         host="localhost",
         user=setup_test_container.user,
         port=setup_test_container.port,
-        config=config_hide,
-        connect_kwargs={
-            "key_filename": setup_test_container.key_filename,
-            "password": "",
-            "timeout": 60,
-            "banner_timeout": 60,
-            "auth_timeout": 60,
-            "allow_agent": False,
-            "look_for_keys": False,
-        },
+        key_filename=setup_test_container.key_filename,
+        connect_timeout=60,
     ) as conn:
 
         ready = _probe_ssh_connection(conn)
@@ -170,12 +226,8 @@ def _probe_ssh_connection(conn):
             result = conn.run("true", hide=True)
             if result.exited == 0:
                 ready = True
-
-        except SSHException as e:
-            if not (
-                str(e).endswith("Connection reset by peer")
-                or str(e).endswith("Error reading SSH protocol banner")
-            ):
+        except ConnectionError as e:
+            if not "Could not connect using command" in str(e):
                 raise e
             time.sleep(5)
 
