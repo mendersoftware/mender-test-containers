@@ -29,6 +29,10 @@ class Result:
         self.exited = exited
         self.return_code = exited
 
+    @property
+    def failed(self):
+        return self.exited != 0
+
 
 class Connection:
     def __init__(self, host, user, port, connect_timeout, key_filename=None):
