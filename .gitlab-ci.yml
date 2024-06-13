@@ -1,4 +1,4 @@
-image: docker:git
+image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:git
 
 variables:
   RASPIOS_VERSION: '2023-05-03'
@@ -36,10 +36,10 @@ stages:
 
 build:prepare:raspios:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
-  image: buildpack-deps:scm
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/buildpack-deps:scm
   script:
     - cd docker/docker-files-raspbian
     - apt-get update && apt-get install -yyq sudo unzip xz-utils fdisk
@@ -52,13 +52,14 @@ build:prepare:raspios:
 
 build:raspios:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs:
     - job: build:prepare:raspios
       artifacts: true
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   variables:
     CONTAINER_TAG: "raspios-bullseye"
   script:
@@ -80,13 +81,14 @@ build:raspios:
 
 build:acceptance-testing:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
     CONTAINER_TAG: "acceptance-testing"
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -106,13 +108,14 @@ build:acceptance-testing:
 
 build:gui-e2e-testing:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
     CONTAINER_TAG: "gui-e2e-testing"
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   before_script:
     - apk add --no-cache aws-cli curl
     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
@@ -134,13 +137,14 @@ build:gui-e2e-testing:
 
 build:backend-integration-testing:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
     CONTAINER_TAG: "backend-integration-testing"
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -166,7 +170,8 @@ build:mender-client-acceptance-testing:
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   before_script:
     - apk add --no-cache aws-cli curl
     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
@@ -188,9 +193,9 @@ build:mender-client-acceptance-testing:
 
 build:aws-k8s-pipeline-toolbox:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
-  image: docker
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
@@ -198,7 +203,8 @@ build:aws-k8s-pipeline-toolbox:
     CI_HELM_VERSION: "v3.12.0"
     CI_KUBECONFORM_VERSION: "0.6.3"
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -217,9 +223,10 @@ build:aws-k8s-pipeline-toolbox:
     - hetzner-amd-beefy-privileged
   stage: build
   needs: []
-  image: docker:git
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:git
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   script:
     - apk add bash
     - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
@@ -245,14 +252,15 @@ build:mender-dist-packages-image:manual:
 
 build:docker-multiplatform-buildx:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
-  image: docker
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
   variables:
     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -265,14 +273,15 @@ build:docker-multiplatform-buildx:
 
 build:goveralls:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
-  image: docker
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
   variables:
     CONTAINER_TAG: "goveralls"
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -285,14 +294,15 @@ build:goveralls:
 
 build:mongodb-backup-runner:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: build
-  image: docker
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
   variables:
     CONTAINER_TAG: "mongodb-backup-runner"
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -326,10 +336,11 @@ build:terragrunt-trivy-toolbox:
 
 .template:publish:
   tags:
-    - mender-qa-worker-generic-light
+    - hetzner-amd-beefy
   stage: publish
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
   before_script:
