@@ -303,6 +303,27 @@ build:mongodb-backup-runner:
         --push
         mongodb-backup-runner
 
+build:terragrunt-trivy-toolbox:
+  tags:
+    - hetzner-amd-beefy
+  stage: build
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
+  needs: []
+  variables:
+    CONTAINER_TAG: "terragrunt-trivy-v1"
+  services:
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+      alias: docker
+  script:
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build
+        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
+        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -f terragrunt-trivy-toolbox/Dockerfile
+        --push
+        terragrunt-trivy-toolbox
+
 .template:publish:
   tags:
     - mender-qa-worker-generic-light
@@ -457,6 +478,16 @@ publish:mongodb-backup-runner:
       artifacts: true
   variables:
     CONTAINER_TAG: "mongodb-backup-runner"
+  script:
+    - *tag_n_push_to_gitlab_registry
+
+publish:terragrunt-trivy-toolbox:
+  extends: .template:publish
+  needs:
+    - job: build:aws-k8s-pipeline-toolbox
+      artifacts: true
+  variables:
+    CONTAINER_TAG: "terragrunt-trivy-v1"
   script:
     - *tag_n_push_to_gitlab_registry
 
