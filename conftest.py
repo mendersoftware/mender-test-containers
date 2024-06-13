@@ -88,10 +88,11 @@ def setup_mender_configured(
 
     if version_is_minimum(mender_deb_version, "4.0.0"):
         pkgs_to_install = ["mender-auth", "mender-update"]
+        url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client4/"
     else:
         pkgs_to_install = ["mender-client"]
+        url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client/"
 
-    url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client/"
     for pkg in pkgs_to_install:
         pkg_url = url + f"{pkg}_{mender_deb_version}-1%2Bdebian%2Bbullseye_armhf.deb"
         filename = urllib.parse.unquote(os.path.basename(pkg_url))
