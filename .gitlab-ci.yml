@@ -43,6 +43,7 @@ build:prepare:raspios:
   script:
     - cd docker/docker-files-raspbian
     - apt-get update && apt-get install -yyq sudo unzip xz-utils fdisk
+    - ls -alR /dev/
     - ./prepare-raspbian-img.sh ${RASPIOS_VERSION}
     - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
   artifacts:

@@ -65,8 +65,24 @@ rootfs_start=$(fdisk -l ${raspios_filename_img} | grep Linux | tr -s ' ' | cut -
 rootfs_offset=$(expr $rootfs_start \* $sector_size)
 
 # Tweaks for the boot partition
-mkdir -p img-boot
-sudo mount -o loop,offset=$boot_offset ${raspios_filename_img} img-boot
+apt-get update
+apt-get install -y bash
+sudo modprobe loop
+mount
+ls -al
+ls -al /
+pwd
+sudo find / -name lsmod || true
+sudo whoami || true
+whoami || true
+cd /
+ls -al /
+echo "#!/bin/bash" > /mount-all.sh
+echo "mkdir -p /media/img-boot; mount -o loop,offset=$boot_offset `pwd`/${raspios_filename_img} /media/img-boot;" >> /mount-all.sh
+sudo /mount-all.sh || true
+mkdir -p /img-boot
+cd /
+sudo mount -o loop,offset=$boot_offset ${raspios_filename_img} /img-boot
 
 sudo touch img-boot/ssh
 sudo tee img-boot/userconf.txt > /dev/null << EOF
@@ -78,7 +94,8 @@ sudo umount img-boot
 rmdir img-boot
 
 # Tweaks for the rootfs
-mkdir -p img-rootfs
+mkdir -p /tmp/img-rootfs
+cd /tmp
 sudo mount -o loop,offset=$rootfs_offset ${raspios_filename_img} img-rootfs
 
 # Raspberry Pi OS comes with this oneshot service to generate SSH keys that requires /dev/hwrng, which although
