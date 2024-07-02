@@ -1,7 +1,7 @@
 bravado==9.2.2
-boto3==1.34.117
+boto3==1.34.137
 crypto
-cryptography==42.0.7
+cryptography==42.0.8
 docker==7.1.0
 flaky==3.8.1
 flask
@@ -9,11 +9,11 @@ jsonschema<5.0
 minio==7.2.7
 pluggy==1.5.0
 pycrypto
-pymongo==4.7.2
+pymongo==4.8.0
 pytest-ordering==0.6
-pytest==8.2.1
+pytest==8.2.2
 pyyaml
-redis==5.0.4
+redis==5.0.7
 redo==2.0.4
 requests==2.32.3
 semver==3.0.2
