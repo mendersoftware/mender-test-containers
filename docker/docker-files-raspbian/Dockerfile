@@ -1,4 +1,4 @@
-FROM alpine:3.20.0
+FROM alpine:3.20.1
 
 # Docker image to emulate Rasperry Pi OS bullseye image with QEMU. See:
 # https://github.com/dhruvvyas90/qemu-rpi-kernel/
