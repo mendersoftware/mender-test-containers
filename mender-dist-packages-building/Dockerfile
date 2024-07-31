@@ -12,7 +12,20 @@ ARG DISTRO=debian
 ARG RELEASE=buster
 
 RUN if [ "${DISTRO}" = "ubuntu" -a "${ARCH}" != "amd64" ]; then \
-        sed -i 's/^deb/deb [arch=amd64]/' /etc/apt/sources.list && \
+        # Unlike Debian, Ubuntu has separate repositories for the Primary Architectures (amd64, i386)
+        # and the Ports (arm64, armhf, among others). The following commands will set the deafult
+        # sources to only be used for native packages (amd64) and then add ports.ubuntu.com repos
+        # for the foreign architecture. See:
+        # https://wiki.ubuntu.com/UbuntuDevelopment/PackageArchive#Ports
+        #
+        # Newer Ubuntu distros use deb822 format in ubuntu.sources,
+        # otherwise use the old one-line format in sources.list
+        if [ -f "/etc/apt/sources.list.d/ubuntu.sources" ]; then \
+            sed -i '/Types: deb/a Architectures: amd64' /etc/apt/sources.list.d/ubuntu.sources; \
+        else \
+            sed -i 's/^deb/deb [arch=amd64]/' /etc/apt/sources.list; \
+        fi; \
+        # Now add the repositories for the foreign architecture
         touch /etc/apt/sources.list.d/ports.list && \
         echo "deb [arch=$ARCH] http://ports.ubuntu.com/ubuntu-ports/ $RELEASE main restricted universe multiverse" > /etc/apt/sources.list.d/ports.list && \
         echo "deb [arch=$ARCH] http://ports.ubuntu.com/ubuntu-ports/ $RELEASE-updates main restricted universe multiverse" >> /etc/apt/sources.list.d/ports.list && \

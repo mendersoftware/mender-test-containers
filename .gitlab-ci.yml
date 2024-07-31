@@ -13,7 +13,7 @@ variables:
         RELEASE: [bullseye, bookworm]
         ARCH: [amd64, armhf, arm64]
       - DISTRO: ubuntu
-        RELEASE: [focal, jammy]
+        RELEASE: [focal, jammy, noble]
         ARCH: [amd64, armhf, arm64]
 
 .tag_n_push_to_gitlab_registry: &tag_n_push_to_gitlab_registry
