@@ -5,6 +5,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 # prepare NFS cache for yocto
 RUN mkdir -p /mnt/sstate-cache
 
+RUN uname -r
+RUN apt-get update -qq && apt-cache search linux-modules
+
 # OS requirements from master
 # linux-modules-$(uname -r | sed 's/gcp/gke/') is a workaround for https://northerntech.atlassian.net/browse/QA-597
 RUN apt-get update -qq && apt-get install -yyq wget && \
