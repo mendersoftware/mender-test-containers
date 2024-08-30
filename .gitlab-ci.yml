@@ -164,7 +164,8 @@ build:backend-integration-testing:
 build:mender-client-acceptance-testing:
   tags:
     # KVM support requires the same type of GCP machine as the tests will use
-    - mender-qa-worker-client-acceptance-tests
+    #- mender-qa-worker-client-acceptance-tests
+    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
