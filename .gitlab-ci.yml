@@ -375,8 +375,9 @@ build:copybara:
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - apk add --no-cache git
-    - git clone --depth 1 https://github.com/google/copybara.git
+    - git clone https://github.com/google/copybara.git
     - cd copybara
+    - git reset --hard d691934fcae4557ece1218eb7f8b1e51ab0a7055  # preventing build failure: https://github.com/google/copybara/issues/299
     - docker buildx build
         --cache-to type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache,mode=max
         --cache-from type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache
