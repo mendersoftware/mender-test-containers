@@ -2,56 +2,6 @@ version: 2
 updates:
   - commit-message:
       prefix: chore
-    directory: /backend-acceptance-testing
-    package-ecosystem: docker
-    schedule:
-      interval: monthly
-    groups:
-      docker-backend-acc-tests-dependencies:
-        patterns:
-          - "*"
-    reviewers:
-      - "mendersoftware/backend-dependabot-reviewers"
-  - commit-message:
-      prefix: chore
-    directory: /backend-acceptance-testing
-    open-pull-requests-limit: 20
-    package-ecosystem: pip
-    schedule:
-      interval: monthly
-    groups:
-      python-backend-acc-tests-dependencies:
-        patterns:
-          - "*"
-    reviewers:
-      - "mendersoftware/backend-dependabot-reviewers"
-  - commit-message:
-      prefix: chore
-    directory: /backend-integration-testing
-    package-ecosystem: docker
-    schedule:
-      interval: monthly
-    groups:
-      docker-backend-int-tests-dependencies:
-        patterns:
-          - "*"
-    reviewers:
-      - "mendersoftware/backend-dependabot-reviewers"
-  - commit-message:
-      prefix: chore
-    directory: /backend-integration-testing
-    open-pull-requests-limit: 20
-    package-ecosystem: pip
-    schedule:
-      interval: monthly
-    groups:
-      python-backend-int-tests-dependencies:
-        patterns:
-          - "*"
-    reviewers:
-      - "mendersoftware/backend-dependabot-reviewers"
-  - commit-message:
-      prefix: chore
     directory: /gui-e2e-testing
     package-ecosystem: docker
     schedule:
