@@ -16,3 +16,4 @@ The images in here are used in the following situations:
 | mender-dist-packages-builder-{DISTRO}-{RELEASE}-{ARCH} | mender-dist-packages-building    | [mender-dist-packages](https://github.com/mendersoftware/mender-dist-packages/blob/master/.gitlab-ci.yml) |
 | goveralls | goveralls | [workflows](https://github.com/mendersoftware/workflows/blob/master/.gitlab-ci.yml) |
 | mongodb-backup-runner | mongodb-backup-runner | [sre-tools - backup:atlas-cloud-backup-eu](https://github.com/mendersoftware/sre-tools/blob/master/.gitlab-ci.yml#L151) |
+| release-please-v1 | release-please | [nt-gui](https://github.com/NorthernTechHQ/nt-gui/blob/main/.gitlab-ci.yml) |
