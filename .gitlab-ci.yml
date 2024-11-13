@@ -356,36 +356,6 @@ build:terragrunt-trivy-toolbox:
         --push
         terragrunt-trivy-toolbox
 
-build:copybara:
-  tags:
-    - hetzner-amd-beefy
-  stage: build
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
-  needs: []
-  variables:
-    CONTAINER_TAG: "copybara-v1"
-  services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
-      alias: docker
-  before_script:
-    - *dind-login
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker context create builder
-    - docker buildx create builder --use --driver-opt network=host --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - apk add --no-cache git
-    - git clone --depth 1 https://github.com/google/copybara.git
-    - cd copybara
-    - docker buildx build
-        --cache-to type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache,mode=max
-        --cache-from type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache
-        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --file ${DOCKER_DIR:-.}/${DOCKERFILE:-Dockerfile}
-        --provenance false
-        --push
-        ${DOCKER_DIR:-.}
-
 build:release-please:
   tags:
     - hetzner-amd-beefy
@@ -581,16 +551,6 @@ publish:terragrunt-trivy-toolbox:
       artifacts: true
   variables:
     CONTAINER_TAG: "terragrunt-trivy-v1"
-  script:
-    - *tag_n_push_to_gitlab_registry
-
-publish:copybara:
-  extends: .template:publish
-  needs:
-    - job: build:copybara
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "copybara-v1"
   script:
     - *tag_n_push_to_gitlab_registry
 
