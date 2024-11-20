@@ -84,35 +84,6 @@ build:raspios:
     paths:
       - raspbianImage.tar
 
-build:acceptance-testing:
-  tags:
-    - hetzner-amd-beefy
-  stage: build
-  needs: []
-  variables:
-    CONTAINER_TAG: "acceptance-testing"
-  services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
-      alias: docker
-  before_script:
-    - *dind-login
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -f backend-acceptance-testing/Dockerfile.backend-tests
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --build-arg raspbian_version=${RASPIOS_VERSION}
-        --push
-        backend-acceptance-testing
-    # Upload to artifact storage left for backwards compatibility
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > acceptanceTestingImage.tar
-  artifacts:
-    expire_in: 2w
-    paths:
-      - acceptanceTestingImage.tar
-
 build:gui-e2e-testing:
   tags:
     - hetzner-amd-beefy
@@ -142,34 +113,6 @@ build:gui-e2e-testing:
   artifacts:
     paths:
       - checksums
-
-build:backend-integration-testing:
-  tags:
-    - hetzner-amd-beefy
-  stage: build
-  needs: []
-  variables:
-    CONTAINER_TAG: "backend-integration-testing"
-  services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
-      alias: docker
-  before_script:
-    - *dind-login
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        -f backend-integration-testing/Dockerfile
-        --push
-        backend-integration-testing
-    # Upload to artifact storage left for backwards compatibility
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > integrationTestingImage.tar
-  artifacts:
-    expire_in: 2w
-    paths:
-      - integrationTestingImage.tar
 
 build:mender-client-acceptance-testing:
   tags:
@@ -415,38 +358,6 @@ publish:raspios-bullseye:
     # Gitlab registry
     - *tag_n_push_to_gitlab_registry
 
-publish:acceptance-testing:
-  extends: .template:publish
-  needs:
-    - job: build:acceptance-testing
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "acceptance-testing"
-  script:
-    # backward compatibility: pushing to the Docker Hub
-    - echo "publishing image to Docker Hub"
-    - docker load -i acceptanceTestingImage.tar
-    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
-    - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
-    # Gitlab registry
-    - *tag_n_push_to_gitlab_registry
-
-publish:backend-integration-testing:
-  extends: .template:publish
-  needs:
-    - job: build:backend-integration-testing
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "backend-integration-testing"
-  script:
-    # backward compatibility: pushing to the Docker Hub
-    - echo "publishing image to Docker Hub"
-    - docker load -i integrationTestingImage.tar
-    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
-    - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
-    # Gitlab registry
-    - *tag_n_push_to_gitlab_registry
-
 publish:gui-e2e-testing:
   extends: .template:publish
   needs:
@@ -563,80 +474,3 @@ publish:release-please:
     CONTAINER_TAG: "release-please-v1"
   script:
     - *tag_n_push_to_gitlab_registry
-
-trigger:backend-integration-testing:mender-qa:
-  stage: test
-  rules:
-    - if: $CI_COMMIT_BRANCH != "master"
-  needs:
-    - job: build:backend-integration-testing
-      artifacts: false
-  inherit:
-    variables: false
-  variables:
-    CONTAINER_TAG: "backend-integration-testing"
-    MENDER_TEST_CONTAINERS_CANDIDATE_TAG: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-    RUN_BACKEND_INTEGRATION_TESTS: "true"
-    RUN_INTEGRATION_TESTS: "false"
-    BUILD_CLIENT: "false"
-    BUILD_QEMUX86_64_UEFI_GRUB: "false"
-    TEST_QEMUX86_64_UEFI_GRUB: "false"
-    BUILD_QEMUX86_64_BIOS_GRUB: "false"
-    TEST_QEMUX86_64_BIOS_GRUB: "false"
-    BUILD_QEMUX86_64_BIOS_GRUB_GPT: "false"
-    TEST_QEMUX86_64_BIOS_GRUB_GPT: "false"
-    BUILD_VEXPRESS_QEMU_UBOOT_UEFI_GRUB: "false"
-    TEST_VEXPRESS_QEMU_UBOOT_UEFI_GRUB: "false"
-    BUILD_VEXPRESS_QEMU: "false"
-    TEST_VEXPRESS_QEMU: "false"
-    BUILD_VEXPRESS_QEMU_FLASH: "false"
-    TEST_VEXPRESS_QEMU_FLASH: "false"
-    BUILD_BEAGLEBONEBLACK: "false"
-    BUILD_RASPBERRYPI3: "false"
-    BUILD_RASPBERRYPI4: "false"
-  trigger:
-    project: Northern.tech/Mender/mender-qa
-    strategy: depend
-
-.template:trigger:acceptance-testing:
-  stage: test
-  rules:
-    - if: $CI_COMMIT_BRANCH != "master"
-  needs:
-    - job: build:acceptance-testing
-      artifacts: false
-  inherit:
-    variables: false
-  variables:
-    CONTAINER_TAG: "acceptance-testing"
-    MENDER_TEST_CONTAINERS_CANDIDATE_TAG: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-
-trigger:acceptance-testing:inventory-enterprise:
-  extends: .template:trigger:acceptance-testing
-  trigger:
-    project: Northern.tech/Mender/inventory-enterprise
-    strategy: depend
-
-trigger:acceptance-testing:deployments-enterprise:
-  extends: .template:trigger:acceptance-testing
-  trigger:
-    project: Northern.tech/Mender/deployments-enterprise
-    strategy: depend
-
-trigger:acceptance-testing:useradm-enterprise:
-  extends: .template:trigger:acceptance-testing
-  trigger:
-    project: Northern.tech/Mender/useradm-enterprise
-    strategy: depend
-
-trigger:acceptance-testing:deviceauth-enterprise:
-  extends: .template:trigger:acceptance-testing
-  trigger:
-    project: Northern.tech/Mender/deviceauth-enterprise
-    strategy: depend
-
-trigger:acceptance-testing:tenantadm:
-  extends: .template:trigger:acceptance-testing
-  trigger:
-    project: Northern.tech/Mender/tenantadm
-    strategy: depend
