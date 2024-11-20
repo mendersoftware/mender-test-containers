@@ -36,23 +36,20 @@ RUN if [ "${DISTRO}" = "ubuntu" -a "${ARCH}" != "amd64" ]; then \
 RUN dpkg --add-architecture ${ARCH} && \
     apt-get update
 
-RUN if ! [ "${DISTRO}" = "debian" -a "${ARCH}" = "armhf" ]; then \
-        apt-get install -y \
-        pkg-config \
-        liblzma-dev:${ARCH} \
-        libssl-dev:${ARCH} \
-        libglib2.0-dev:${ARCH} \
-        libmount-dev:${ARCH} \
-        libc-dev:${ARCH} \
-        libc6-dev:${ARCH} \
-        linux-libc-dev:${ARCH} \
-        ; \
-    fi
+RUN apt-get install -y \
+    pkg-config \
+    liblzma-dev:${ARCH} \
+    libssl-dev:${ARCH} \
+    libglib2.0-dev:${ARCH} \
+    libmount-dev:${ARCH} \
+    libc-dev:${ARCH} \
+    libc6-dev:${ARCH} \
+    linux-libc-dev:${ARCH}
 
 RUN if [ "${ARCH}" = "arm64" ]; then \
         apt-get install -y gcc-aarch64-linux-gnu; \
     fi
 
-RUN if [ "${ARCH}" = "armhf" -a "${DISTRO}" != "debian" ]; then \
+RUN if [ "${ARCH}" = "armhf" ]; then \
         apt-get install -y gcc-arm-linux-gnueabihf; \
     fi
