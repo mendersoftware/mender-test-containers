@@ -1,5 +1,5 @@
 ARG DISTRO=debian
-ARG RELEASE=buster
+ARG RELEASE=bookworm
 FROM $DISTRO:$RELEASE
 
 COPY requirements.txt .
@@ -9,7 +9,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 
 ARG ARCH=amd64
 ARG DISTRO=debian
-ARG RELEASE=buster
+ARG RELEASE=bookworm
 
 RUN if [ "${DISTRO}" = "ubuntu" -a "${ARCH}" != "amd64" ]; then \
         # Unlike Debian, Ubuntu has separate repositories for the Primary Architectures (amd64, i386)
