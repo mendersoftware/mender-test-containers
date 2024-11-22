@@ -43,7 +43,7 @@ if [ $required_arguments == false ]; then
     exit 1
 fi
 
-if [ "$ARCH" = "armhf" -a "$DISTRO" = "debian" ]; then
+if [ "$DISTRO" = "raspberrypios" -a "$ARCH" = "armhf" ]; then
     # Move requirements.txt to be in correct build context
     cp requirements.txt armhf/
 
@@ -72,7 +72,8 @@ if [ "$ARCH" = "armhf" -a "$DISTRO" = "debian" ]; then
         --file armhf/Dockerfile.rpi \
         --push \
         armhf
-else
+
+elif [ "$DISTRO" = "debian" -o "$DISTRO" = "ubuntu" ]; then
     docker build \
         --cache-from ${CONTAINER_TAG}-master \
         --tag ${CONTAINER_TAG}-${CI_PIPELINE_ID} \
@@ -81,4 +82,8 @@ else
         --build-arg ARCH \
         --push \
         .
+
+else
+    echo "Combination of DISTRO '$DISTRO' and ARCH '$ARCH' is not supported"
+    exit 1
 fi

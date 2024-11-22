@@ -9,10 +9,16 @@ variables:
 .mender-dist-packages-image-matrix:
   parallel:
     matrix:
-      - DISTRO: debian
+      - BUILD: simulated
+        DISTRO: raspberrypios
+        RELEASE: [bullseye, bookworm]
+        ARCH: [armhf]
+      - BUILD: crosscompile
+        DISTRO: debian
         RELEASE: [bullseye, bookworm]
         ARCH: [amd64, armhf, arm64]
-      - DISTRO: ubuntu
+      - BUILD: crosscompile
+        DISTRO: ubuntu
         RELEASE: [focal, jammy, noble]
         ARCH: [amd64, armhf, arm64]
 
@@ -186,7 +192,7 @@ build:aws-k8s-pipeline-toolbox:
     - *dind-login
   script:
     - apk add bash
-    - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
+    - CONTAINER_TAG=mender-dist-packages-builder-${BUILD}-${DISTRO}-${RELEASE}-${ARCH}
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - cd mender-dist-packages-building
@@ -422,16 +428,16 @@ publish:mender-dist-packages-image:
   extends: .template:publish
   dependencies:
     # NOTE: We should depend on each of the jobs individually with:
-    # - "build:mender-dist-packages-image: [${DISTRO}, ${RELEASE}, ${ARCH}]"
+    # - "build:mender-dist-packages-image: [${BUILD}, ${DISTRO}, ${RELEASE}, ${ARCH}]"
     # However GitLab does not seem to expand these variables on a dependencies
     # key. Use arbitrary one of them and assume that they all passed (using
     # depends instead of needs ensures that the whole previous build stage
     # needs to pass, so it should be safe).
-    - "build:mender-dist-packages-image: [debian, bullseye, amd64]"
+    - "build:mender-dist-packages-image: [crosscompile, debian, bullseye, amd64]"
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
   script:
-    - CONTAINER_TAG=mender-dist-packages-builder-${DISTRO}-${RELEASE}-${ARCH}
+    - CONTAINER_TAG=mender-dist-packages-builder-${BUILD}-${DISTRO}-${RELEASE}-${ARCH}
     - *tag_n_push_to_gitlab_registry
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
 
