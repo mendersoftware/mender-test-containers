@@ -5,6 +5,7 @@ variables:
   DOCKER_REPOSITORY: 'mendersoftware/mender-test-containers'
   DOCKER_HUB_USERNAME: 'menderbuildsystem'
   DOCKER_BUILDKIT: 1
+  DOCKER_VERSION: "27.3"
 
 .mender-dist-packages-image-matrix:
   parallel:
@@ -67,7 +68,7 @@ build:raspios:
     - job: build:prepare:raspios
       artifacts: true
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   variables:
     CONTAINER_TAG: "raspios-bullseye"
@@ -98,7 +99,7 @@ build:gui-e2e-testing:
   variables:
     CONTAINER_TAG: "gui-e2e-testing"
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - apk add --no-cache aws-cli curl
@@ -129,7 +130,7 @@ build:mender-client-acceptance-testing:
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - apk add --no-cache aws-cli curl
@@ -162,7 +163,7 @@ build:aws-k8s-pipeline-toolbox:
     CI_HELM_VERSION: "v3.12.0"
     CI_KUBECONFORM_VERSION: "0.6.3"
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - *dind-login
@@ -186,7 +187,7 @@ build:aws-k8s-pipeline-toolbox:
   needs: []
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:git
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - *dind-login
@@ -222,7 +223,7 @@ build:docker-multiplatform-buildx:
   variables:
     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - *dind-login
@@ -245,7 +246,7 @@ build:goveralls:
   variables:
     CONTAINER_TAG: "goveralls"
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - *dind-login
@@ -268,7 +269,7 @@ build:mongodb-backup-runner:
   variables:
     CONTAINER_TAG: "mongodb-backup-runner"
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - *dind-login
@@ -286,12 +287,12 @@ build:terragrunt-trivy-toolbox:
   tags:
     - hetzner-amd-beefy
   stage: build
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
   variables:
     CONTAINER_TAG: "terragrunt-trivy-v1"
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - *dind-login
@@ -309,18 +310,18 @@ build:release-please:
   tags:
     - hetzner-amd-beefy
   stage: build
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
   variables:
     CONTAINER_TAG: "release-please-v1"
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
     - *dind-login
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker context create builder
-    - docker buildx create builder --use --driver-opt network=host --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
+    - docker buildx create builder --use --driver-opt "image=moby/buildkit:v0.17.3,network=host" --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - apk add --no-cache git
@@ -340,7 +341,7 @@ build:release-please:
     - hetzner-amd-beefy
   stage: publish
   services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
