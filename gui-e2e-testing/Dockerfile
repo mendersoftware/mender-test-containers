@@ -1,4 +1,4 @@
-FROM alpine:3.20.3 as mender-artifact-get
+FROM alpine:3.21.0 as mender-artifact-get
 ARG TARGETARCH
 # TODO: update to mender-artifact 4.0.0 after the release
 ARG MENDER_ARTIFACT_VERSION=4.0.0-build5-1+ubuntu+noble
@@ -7,7 +7,7 @@ RUN deb_filename=mender-artifact_${MENDER_ARTIFACT_VERSION}_${TARGETARCH}.deb &&
     wget "https://downloads.mender.io/repos/debian/pool/main/m/mender-artifact/${deb_filename}" \
     --output-document=/mender-artifact.deb && dpkg-deb --extract /mender-artifact.deb /
 
-FROM mcr.microsoft.com/playwright:v1.49.0
+FROM mcr.microsoft.com/playwright:v1.49.1
 WORKDIR /e2e
 ENV CI=1
 ADD https://dgsbl4vditpls.cloudfront.net/mender-demo-artifact.mender ./
