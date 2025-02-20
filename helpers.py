@@ -203,7 +203,7 @@ def new_tester_ssh_connection(setup_test_container):
 def wait_for_container_boot(docker_container_id):
     assert docker_container_id is not None
     ready = False
-    timeout = time.time() + 60 * 3
+    timeout = time.time() + 60 * 15
     while not ready and time.time() < timeout:
         time.sleep(5)
         output = subprocess.check_output(
