@@ -21,6 +21,9 @@ import stat
 import subprocess
 import time
 
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class Result:
     def __init__(self, stdout, stderr, exited):
@@ -204,12 +207,12 @@ def wait_for_container_boot(docker_container_id):
     assert docker_container_id is not None
     ready = False
     timeout = time.time() + 60 * 15
+    output = ""
     while not ready and time.time() < timeout:
         time.sleep(5)
         output = subprocess.check_output(
             "docker logs {} 2>&1".format(docker_container_id), shell=True
         )
-
         # Check on the last few chars only, so that we can detect reboots
         # For Raspberry Pi OS, the tty prompt comes earlier than the SSH server, so wait for the later
         if re.search(
@@ -219,6 +222,8 @@ def wait_for_container_boot(docker_container_id):
         ):
             ready = True
 
+    for line in output.decode("utf-8").split("\n"):
+        logging.debug(line)
     return ready
 
 
