@@ -1,4 +1,4 @@
-FROM alpine:3.21.3 as mender-artifact-get
+FROM alpine:3.21.3 AS mender-artifact-get
 ARG TARGETARCH
 # TODO: update to mender-artifact 4.0.0 after the release
 ARG MENDER_ARTIFACT_VERSION=4.0.0-build5-1+ubuntu+noble
