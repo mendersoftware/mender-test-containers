@@ -1,7 +1,6 @@
 FROM alpine:3.21.3 AS mender-artifact-get
 ARG TARGETARCH
-# TODO: update to mender-artifact 4.0.0 after the release
-ARG MENDER_ARTIFACT_VERSION=4.0.0-build5-1+ubuntu+noble
+ARG MENDER_ARTIFACT_VERSION=4.0.0-1+ubuntu+noble
 RUN apk --no-cache add dpkg zstd
 RUN deb_filename=mender-artifact_${MENDER_ARTIFACT_VERSION}_${TARGETARCH}.deb && \
     wget "https://downloads.mender.io/repos/debian/pool/main/m/mender-artifact/${deb_filename}" \
