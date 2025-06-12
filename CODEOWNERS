@@ -1,0 +1,9 @@
+# GUI testing
+/gui-e2e-testing/ @mendersoftware/frontend-dependabot-reviewers
+
+# Client testing
+/mender-client-acceptance-testing/ @mendersoftware/client-dependabot-reviewers
+/docker/docker-files-raspbian/ @mendersoftware/client-dependabot-reviewers
+
+# AWS toolbox
+/aws-k8s-toolbox/ @mendersoftware/qa-dependabot-reviewers
