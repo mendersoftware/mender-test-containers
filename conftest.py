@@ -30,6 +30,14 @@ def do_setup_test_container(request, setup_test_container_props, mender_version)
     # This should be parametrized in the mother project.
     image = setup_test_container_props.image_name
 
+    if image == LOCAL_RUN_NO_CONTAINER:
+        if setup_test_container_props.append_mender_version:
+            raise ValueError("Not starting a container, no Mender version specificity")
+
+        # No container to start, just return the properties for use in other
+        # places/fixtures.
+        return setup_test_container_props
+
     if setup_test_container_props.append_mender_version:
         image = "%s:%s" % (image, mender_version)
 

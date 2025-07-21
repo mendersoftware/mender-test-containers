@@ -15,6 +15,8 @@
 
 import os
 
+from .helpers import LOCAL_RUN_NO_CONTAINER
+
 
 class ContainerProps:
     image_name = None
@@ -63,3 +65,4 @@ MenderTestQemux86_64 = ContainerProps(
         os.path.dirname(os.path.realpath(__file__)), "docker/ssh-keys/key"
     ),
 )
+MenderTestNoContainer = ContainerProps(LOCAL_RUN_NO_CONTAINER)
