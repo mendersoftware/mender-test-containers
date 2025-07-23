@@ -129,14 +129,9 @@ def setup_mender_configured(
         filename = urllib.parse.unquote(os.path.basename(pkg_url))
         # Install deb package and missing dependencies
         setup_tester_ssh_connection.run(f"wget {pkg_url}")
-        result = setup_tester_ssh_connection.sudo(
-            f"DEBIAN_FRONTEND=noninteractive dpkg --install {filename}", warn=True
+        setup_tester_ssh_connection.sudo(
+            f"DEBIAN_FRONTEND=noninteractive apt -y install ./{filename}"
         )
-        if result.exited != 0:
-            setup_tester_ssh_connection.sudo("apt-get update")
-            setup_tester_ssh_connection.sudo(
-                "apt-get --fix-broken --assume-yes install"
-            )
 
     # Verify that the packages were installed
     for pkg in pkgs_to_install:
