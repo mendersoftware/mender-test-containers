@@ -99,6 +99,22 @@ def setup_mender_configured(
         # If mender is already present, do nothing.
         return
 
+    uname_m = setup_tester_ssh_connection.run("uname -m").stdout.strip()
+    if uname_m == "x86_64":
+        device_type = "generic-x86_64"
+        pkg_arch = "amd64"
+    elif uname_m == "aarch64":
+        device_type = "generic-armv8"
+        pkg_arch = "arm64"
+    elif uname_m.startswith("armv6"):
+        device_type = "generic-armv6"
+        pkg_arch = "armhf"
+    elif uname_m.startswith("armv7"):
+        device_type = "generic-armv7"
+        pkg_arch = "armhf"
+    else:
+        raise KeyError(f"{uname_m} is not a recognized machine type")
+
     if version_is_minimum(mender_deb_version, "4.0.0"):
         pkgs_to_install = ["mender-auth", "mender-update"]
         url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client4/"
@@ -107,7 +123,9 @@ def setup_mender_configured(
         url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client/"
 
     for pkg in pkgs_to_install:
-        pkg_url = url + f"{pkg}_{mender_deb_version}-1%2Bdebian%2Bbullseye_armhf.deb"
+        pkg_url = (
+            url + f"{pkg}_{mender_deb_version}-1%2Bdebian%2Bbullseye_{pkg_arch}.deb"
+        )
         filename = urllib.parse.unquote(os.path.basename(pkg_url))
         # Install deb package and missing dependencies
         setup_tester_ssh_connection.run(f"wget {pkg_url}")
@@ -123,14 +141,6 @@ def setup_mender_configured(
     # Verify that the packages were installed
     for pkg in pkgs_to_install:
         setup_tester_ssh_connection.run(f"dpkg --status {pkg}")
-
-    output = setup_tester_ssh_connection.run("uname -m").stdout.strip()
-    if output == "x86_64":
-        device_type = "generic-x86_64"
-    elif output.startswith("arm"):
-        device_type = "generic-armv6"
-    else:
-        raise KeyError(f"{output} is not a recognized machine type")
 
     setup_tester_ssh_connection.sudo("mkdir -p /var/lib/mender")
     setup_tester_ssh_connection.run(
