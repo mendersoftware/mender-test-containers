@@ -43,37 +43,7 @@ if [ $required_arguments == false ]; then
     exit 1
 fi
 
-if [ "$DISTRO" = "raspberrypios" -a "$ARCH" = "armhf" ]; then
-    # Move requirements.txt to be in correct build context
-    cp requirements.txt armhf/
-
-    # Build an image to boostrap raspian
-    docker build \
-        --tag mkimage \
-        --build-arg RELEASE \
-        --file armhf/Dockerfile.bootstrap \
-        armhf
-
-    # Run a bootstrap-container and extract the rootfs.tar.xz
-    docker run \
-        --rm \
-        --volume \
-        $(pwd)/armhf/output:/copy \
-        --entrypoint bash \
-        mkimage \
-        -c "cp /output/rootfs.tar.xz /copy"
-     
-    # Build armhf with the boostrapped os
-    docker build \
-        --cache-from ${CONTAINER_TAG}-master \
-        --tag ${CONTAINER_TAG}-${CI_PIPELINE_ID} \
-        --platform=linux/arm/v6 \
-        --build-arg RELEASE \
-        --file armhf/Dockerfile.rpi \
-        --push \
-        armhf
-
-elif [ "$DISTRO" = "debian" -o "$DISTRO" = "ubuntu" ]; then
+if [ "$DISTRO" = "debian" -o "$DISTRO" = "ubuntu" ]; then
     docker build \
         --cache-from ${CONTAINER_TAG}-master \
         --tag ${CONTAINER_TAG}-${CI_PIPELINE_ID} \
