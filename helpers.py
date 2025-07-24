@@ -17,9 +17,13 @@ import logging
 import os
 import packaging.version
 import re
+import shutil
 import stat
 import subprocess
 import time
+
+
+LOCAL_RUN_NO_CONTAINER = "LOCAL"
 
 
 class Result:
@@ -87,6 +91,43 @@ class Connection:
         if not key_filename:
             key_filename = self.key_filename
         return put(self, file, key_filename, local_path, remote_path)
+
+    def sudo(self, command, warn=False):
+        sudo_command = f"sudo {command}"
+        return self.run(sudo_command, warn)
+
+    def __exit__(self, arg1, arg2, arg3):
+        pass
+
+
+class LocalNoConnection:
+    def __enter__(self):
+        return self
+
+    def run(self, command, warn=False, hide=True, echo=False, popen=False):
+        logging.debug(command)
+        if echo:
+            print(command)
+
+        if popen:
+            return subprocess.Popen(command)
+        else:
+            proc = subprocess.run(
+                command, check=not warn, capture_output=True, shell=True
+            )
+            returncode = proc.returncode
+
+            stdout = proc.stdout.decode()
+            stderr = proc.stderr.decode()
+
+            if not hide:
+                print(stdout)
+                print(stderr)
+
+            return Result(stdout, stderr, returncode)
+
+    def put(self, file, key_filename=None, local_path=".", remote_path="."):
+        shutil.copy(os.path.join(local_path, file), remote_path)
 
     def sudo(self, command, warn=False):
         sudo_command = f"sudo {command}"
@@ -186,6 +227,9 @@ class PortForward:
 
 
 def new_tester_ssh_connection(setup_test_container):
+    if setup_test_container.image_name == LOCAL_RUN_NO_CONTAINER:
+        return LocalNoConnection()
+
     with Connection(
         host="localhost",
         user=setup_test_container.user,

@@ -30,6 +30,14 @@ def do_setup_test_container(request, setup_test_container_props, mender_version)
     # This should be parametrized in the mother project.
     image = setup_test_container_props.image_name
 
+    if image == LOCAL_RUN_NO_CONTAINER:
+        if setup_test_container_props.append_mender_version:
+            raise ValueError("Not starting a container, no Mender version specificity")
+
+        # No container to start, just return the properties for use in other
+        # places/fixtures.
+        return setup_test_container_props
+
     if setup_test_container_props.append_mender_version:
         image = "%s:%s" % (image, mender_version)
 
@@ -91,6 +99,22 @@ def setup_mender_configured(
         # If mender is already present, do nothing.
         return
 
+    uname_m = setup_tester_ssh_connection.run("uname -m").stdout.strip()
+    if uname_m == "x86_64":
+        device_type = "generic-x86_64"
+        pkg_arch = "amd64"
+    elif uname_m == "aarch64":
+        device_type = "generic-armv8"
+        pkg_arch = "arm64"
+    elif uname_m.startswith("armv6"):
+        device_type = "generic-armv6"
+        pkg_arch = "armhf"
+    elif uname_m.startswith("armv7"):
+        device_type = "generic-armv7"
+        pkg_arch = "armhf"
+    else:
+        raise KeyError(f"{uname_m} is not a recognized machine type")
+
     if version_is_minimum(mender_deb_version, "4.0.0"):
         pkgs_to_install = ["mender-auth", "mender-update"]
         url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client4/"
@@ -99,30 +123,19 @@ def setup_mender_configured(
         url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client/"
 
     for pkg in pkgs_to_install:
-        pkg_url = url + f"{pkg}_{mender_deb_version}-1%2Bdebian%2Bbullseye_armhf.deb"
+        pkg_url = (
+            url + f"{pkg}_{mender_deb_version}-1%2Bdebian%2Bbullseye_{pkg_arch}.deb"
+        )
         filename = urllib.parse.unquote(os.path.basename(pkg_url))
         # Install deb package and missing dependencies
         setup_tester_ssh_connection.run(f"wget {pkg_url}")
-        result = setup_tester_ssh_connection.sudo(
-            f"DEBIAN_FRONTEND=noninteractive dpkg --install {filename}", warn=True
+        setup_tester_ssh_connection.sudo(
+            f"DEBIAN_FRONTEND=noninteractive apt -y install ./{filename}"
         )
-        if result.exited != 0:
-            setup_tester_ssh_connection.sudo("apt-get update")
-            setup_tester_ssh_connection.sudo(
-                "apt-get --fix-broken --assume-yes install"
-            )
 
     # Verify that the packages were installed
     for pkg in pkgs_to_install:
         setup_tester_ssh_connection.run(f"dpkg --status {pkg}")
-
-    output = setup_tester_ssh_connection.run("uname -m").stdout.strip()
-    if output == "x86_64":
-        device_type = "generic-x86_64"
-    elif output.startswith("arm"):
-        device_type = "generic-armv6"
-    else:
-        raise KeyError(f"{output} is not a recognized machine type")
 
     setup_tester_ssh_connection.sudo("mkdir -p /var/lib/mender")
     setup_tester_ssh_connection.run(
