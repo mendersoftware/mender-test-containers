@@ -1,7 +1,6 @@
 image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:git
 
 variables:
-  RASPIOS_VERSION: '2023-05-03'
   DOCKER_REPOSITORY: 'mendersoftware/mender-test-containers'
   DOCKER_HUB_USERNAME: 'menderbuildsystem'
   DOCKER_BUILDKIT: 1
@@ -10,10 +9,6 @@ variables:
 .mender-dist-packages-image-matrix:
   parallel:
     matrix:
-      - BUILD: simulated
-        DISTRO: raspberrypios
-        RELEASE: [bullseye, bookworm]
-        ARCH: [armhf]
       - BUILD: crosscompile
         DISTRO: debian
         RELEASE: [bullseye, bookworm]
@@ -43,53 +38,6 @@ stages:
   - build
   - test
   - publish
-
-build:prepare:raspios:
-  tags:
-    - mender-qa-worker-generic-light
-  stage: build
-  needs: []
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/buildpack-deps:scm
-  script:
-    - cd docker/docker-files-raspbian
-    - apt-get update && apt-get install -yyq sudo unzip xz-utils fdisk
-    - ./prepare-raspbian-img.sh ${RASPIOS_VERSION}
-    - cd .. && tar -cvf $CI_PROJECT_DIR/docker-files-raspbian.tar docker-files-raspbian
-  artifacts:
-    expire_in: 2w
-    paths:
-      - docker-files-raspbian.tar
-
-build:raspios:
-  tags:
-    - hetzner-amd-beefy
-  stage: build
-  needs:
-    - job: build:prepare:raspios
-      artifacts: true
-  services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
-      alias: docker
-  variables:
-    CONTAINER_TAG: "raspios-bullseye"
-  before_script:
-    - *dind-login
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - tar -xvf docker-files-raspbian.tar
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --build-arg raspios_version=${RASPIOS_VERSION}
-        --push
-        docker-files-raspbian
-    # Upload to artifact storage left for backwards compatibility
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > raspbianImage.tar
-  artifacts:
-    expire_in: 2w
-    paths:
-      - raspbianImage.tar
 
 build:gui-e2e-testing:
   tags:
@@ -348,22 +296,6 @@ build:release-please:
   before_script:
     - echo -n $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-
-publish:raspios-bullseye:
-  extends: .template:publish
-  needs:
-    - job: build:raspios
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "raspios-bullseye"
-  script:
-    # backward compatibility: pushing to the Docker Hub
-    - echo "publishing image to Docker Hub"
-    - docker load -i raspbianImage.tar
-    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} $DOCKER_REPOSITORY:$CONTAINER_TAG
-    - docker push $DOCKER_REPOSITORY:$CONTAINER_TAG
-    # Gitlab registry
-    - *tag_n_push_to_gitlab_registry
 
 publish:gui-e2e-testing:
   extends: .template:publish
