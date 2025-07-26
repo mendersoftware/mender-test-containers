@@ -14,6 +14,10 @@ variables:
         RELEASE: [bullseye, bookworm]
         ARCH: [amd64, armhf, arm64]
       - BUILD: crosscompile
+        DISTRO: debian
+        RELEASE: [trixie]
+        ARCH: [amd64, armhf, arm64, riscv64]
+      - BUILD: crosscompile
         DISTRO: ubuntu
         RELEASE: [jammy, noble]
         ARCH: [amd64, armhf, arm64]
