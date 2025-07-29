@@ -115,12 +115,12 @@ def setup_mender_configured(
     else:
         raise KeyError(f"{uname_m} is not a recognized machine type")
 
-    if version_is_minimum(mender_deb_version, "4.0.0"):
+    if version_is_minimum(mender_deb_version, "4.1.0"):
         pkgs_to_install = ["mender-auth", "mender-update"]
-        url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client4/"
+        url = "https://downloads.mender.io/repos/device-components/pool/main/m/mender-client4/"
     else:
         pkgs_to_install = ["mender-client"]
-        url = "https://downloads.mender.io/repos/debian/pool/main/m/mender-client/"
+        url = "https://downloads.mender.io/repos/device-components/pool/main/m/mender-client/"
 
     for pkg in pkgs_to_install:
         pkg_url = (
