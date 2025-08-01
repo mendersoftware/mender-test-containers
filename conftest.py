@@ -99,21 +99,27 @@ def setup_mender_configured(
         # If mender is already present, do nothing.
         return
 
-    uname_m = setup_tester_ssh_connection.run("uname -m").stdout.strip()
-    if uname_m == "x86_64":
+    # $MACHTYPE is something like "arm-unknown-linux-gnueabihf" or
+    # "x86_64-redhat-linux-gnu"
+    mach_type = setup_tester_ssh_connection.run(
+        "bash -c 'echo ${MACHTYPE%%-*}'"
+    ).stdout.strip()
+    if mach_type == "x86_64":
         device_type = "generic-x86_64"
         pkg_arch = "amd64"
-    elif uname_m == "aarch64":
+    elif mach_type == "aarch64":
         device_type = "generic-armv8"
         pkg_arch = "arm64"
-    elif uname_m.startswith("armv6"):
-        device_type = "generic-armv6"
-        pkg_arch = "armhf"
-    elif uname_m.startswith("armv7"):
-        device_type = "generic-armv7"
-        pkg_arch = "armhf"
+    elif mach_type == "arm":
+        uname_m = setup_tester_ssh_connection.run("uname -m").stdout.strip()
+        if uname_m.startswith("armv6"):
+            device_type = "generic-armv6"
+            pkg_arch = "armhf"
+        else:
+            device_type = "generic-armv7"
+            pkg_arch = "armhf"
     else:
-        raise KeyError(f"{uname_m} is not a recognized machine type")
+        raise KeyError(f"{mach_type} is not a recognized machine type")
 
     if version_is_minimum(mender_deb_version, "4.1.0"):
         pkgs_to_install = ["mender-auth", "mender-update"]
