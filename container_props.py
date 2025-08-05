@@ -54,7 +54,7 @@ MenderTestRaspbian = ContainerProps(
     image_name="registry.gitlab.com/northern.tech/mender/mender-test-containers:raspios-bullseye-master",
     device_type="raspberrypi3",
     key_filename=os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "docker/ssh-keys/key"
+        os.path.dirname(os.path.realpath(__file__)), "qemu-test-containers/ssh-keys/key"
     ),
     user="pi",
 )
@@ -62,7 +62,7 @@ MenderTestQemux86_64 = ContainerProps(
     image_name="mendersoftware/mender-client-qemu",
     append_mender_version=True,
     key_filename=os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "docker/ssh-keys/key"
+        os.path.dirname(os.path.realpath(__file__)), "qemu-test-containers/ssh-keys/key"
     ),
 )
 MenderTestNoContainer = ContainerProps(LOCAL_RUN_NO_CONTAINER)
