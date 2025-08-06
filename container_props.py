@@ -50,14 +50,6 @@ class ContainerProps:
         self.qemu_ip = qemu_ip
 
 
-MenderTestRaspbian = ContainerProps(
-    image_name="registry.gitlab.com/northern.tech/mender/mender-test-containers:raspios-bullseye-master",
-    device_type="raspberrypi3",
-    key_filename=os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "qemu-test-containers/ssh-keys/key"
-    ),
-    user="pi",
-)
 MenderTestQemux86_64 = ContainerProps(
     image_name="mendersoftware/mender-client-qemu",
     append_mender_version=True,
