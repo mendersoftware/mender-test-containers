@@ -18,4 +18,6 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # git-cliff
-RUN npm install -g git-cliff
+# pin to 2.8.0 as 2.9.0 has breaking changes
+# https://northerntech.atlassian.net/browse/QA-1148
+RUN npm install -g git-cliff@2.8.0
