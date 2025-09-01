@@ -4,11 +4,11 @@ LABEL REFRESHED_AT=20240613
 # to test terraform with trivy
 
 # Application list
-ENV TERRAGRUNT_VERSION 0.59.3
+ENV TERRAGRUNT_VERSION=0.59.3
 
 # env
-ENV BIN_DIR /opt/builder/bin
-ENV USER builder
+ENV BIN_DIR=/opt/builder/bin
+ENV USER=builder
 
 # OS dependencies
 RUN apt-get update && apt-get install -y \
