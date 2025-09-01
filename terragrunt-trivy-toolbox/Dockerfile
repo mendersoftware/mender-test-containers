@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM debian:12-slim
 LABEL REFRESHED_AT=20240613
 # image used inside Gitlab CICD Pipelines
 # to test terraform with trivy
