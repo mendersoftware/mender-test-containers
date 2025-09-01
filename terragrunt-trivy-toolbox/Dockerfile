@@ -10,7 +10,7 @@ ENV TERRAGRUNT_VERSION 0.59.3
 ENV BIN_DIR /opt/builder/bin
 ENV USER builder
 
-# OS depenencies
+# OS dependencies
 RUN apt-get update && apt-get install -y \
   git \
   curl \
