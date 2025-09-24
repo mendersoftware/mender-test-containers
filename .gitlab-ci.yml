@@ -31,6 +31,29 @@ include:
   - project: 'Northern.tech/Mender/mendertesting'
     file: '.gitlab-ci-check-python3-format.yml'
 
+default:
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+
+.requires-docker: &requires-docker
+  - DOCKER_RETRY_SLEEP_S=10 # wait longer for k8s workers
+  - DOCKER_RUNNING=false
+  - for try in 4 3 2 1; do
+  -   docker ps && DOCKER_RUNNING=true
+  -   if [ "${DOCKER_RUNNING}" == "true" ]; then
+  -     echo "DEBUG - docker is running - continue"
+  -     break
+  -   fi
+  -   sleep "${DOCKER_RETRY_SLEEP_S}"
+  - done
+  - if [ "${DOCKER_RUNNING}" != "true" ]; then
+  -   echo "DEBUG - docker is not running - exiting"
+  -   exit 192
+  - fi
+
 .dind-login: &dind-login
   - mkdir -p $HOME/.docker && echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
 
@@ -50,6 +73,7 @@ build:gui-e2e-testing:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - apk add --no-cache aws-cli curl
     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
     - *dind-login
@@ -81,6 +105,7 @@ build:mender-client-acceptance-testing:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - apk add --no-cache aws-cli curl
     - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
   script:
@@ -114,6 +139,7 @@ build:aws-k8s-pipeline-toolbox:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - *dind-login
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
@@ -138,6 +164,7 @@ build:aws-k8s-pipeline-toolbox:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - *dind-login
   script:
     - apk add bash
@@ -174,6 +201,7 @@ build:docker-multiplatform-buildx:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - *dind-login
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
@@ -197,6 +225,7 @@ build:goveralls:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - *dind-login
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
@@ -220,6 +249,7 @@ build:mongodb-backup-runner:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - *dind-login
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
@@ -243,6 +273,7 @@ build:terragrunt-trivy-toolbox:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - *dind-login
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
@@ -266,6 +297,7 @@ build:release-please:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   before_script:
+    - *requires-docker
     - *dind-login
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker context create builder
@@ -294,6 +326,7 @@ build:release-please:
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
   before_script:
+    - *requires-docker
     - echo -n $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
 
