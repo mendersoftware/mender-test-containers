@@ -11,7 +11,7 @@ variables:
     matrix:
       - BUILD: crosscompile
         DISTRO: debian
-        RELEASE: [bullseye, bookworm]
+        RELEASE: [bullseye, bookworm, trixie]
         ARCH: [amd64, armhf, arm64]
       - BUILD: crosscompile
         DISTRO: ubuntu
