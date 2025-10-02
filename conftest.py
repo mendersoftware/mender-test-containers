@@ -121,12 +121,10 @@ def setup_mender_configured(
     else:
         raise KeyError(f"{mach_type} is not a recognized machine type")
 
-    if version_is_minimum(mender_deb_version, "4.1.0"):
-        pkgs_to_install = ["mender-auth", "mender-update"]
-        url = "https://downloads.mender.io/repos/device-components/pool/main/m/mender-client4/"
-    else:
-        pkgs_to_install = ["mender-client"]
-        url = "https://downloads.mender.io/repos/device-components/pool/main/m/mender-client/"
+    # The oldest version in the new repos is 5.0.2
+    assert version_is_minimum(mender_deb_version, "5.0.2")
+    pkgs_to_install = ["mender-auth", "mender-update"]
+    url = "https://downloads.mender.io/repos/device-components/pool/main/m/mender-client4/"
 
     for pkg in pkgs_to_install:
         pkg_url = (
@@ -136,7 +134,7 @@ def setup_mender_configured(
         # Install deb package and missing dependencies
         setup_tester_ssh_connection.run(f"wget {pkg_url}")
         setup_tester_ssh_connection.sudo(
-            f"DEBIAN_FRONTEND=noninteractive apt -y install ./{filename}"
+            f"DEBIAN_FRONTEND=noninteractive apt install --assume-yes --no-install-recommends ./{filename}"
         )
 
     # Verify that the packages were installed
