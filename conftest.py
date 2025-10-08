@@ -104,6 +104,11 @@ def setup_mender_configured(
     mach_type = setup_tester_ssh_connection.run(
         "bash -c 'echo ${MACHTYPE%%-*}'"
     ).stdout.strip()
+    debian_version = (
+        setup_tester_ssh_connection.run("grep VERSION_CODENAME /etc/os-release")
+        .stdout.strip()
+        .split("=")[1]
+    )
     if mach_type == "x86_64":
         device_type = "generic-x86_64"
         pkg_arch = "amd64"
@@ -128,7 +133,8 @@ def setup_mender_configured(
 
     for pkg in pkgs_to_install:
         pkg_url = (
-            url + f"{pkg}_{mender_deb_version}-1%2Bdebian%2Bbullseye_{pkg_arch}.deb"
+            url
+            + f"{pkg}_{mender_deb_version}-1%2Bdebian%2B{debian_version}_{pkg_arch}.deb"
         )
         filename = urllib.parse.unquote(os.path.basename(pkg_url))
         # Install deb package and missing dependencies
