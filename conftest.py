@@ -140,7 +140,7 @@ def setup_mender_configured(
         # Install deb package and missing dependencies
         setup_tester_ssh_connection.run(f"wget {pkg_url}")
         setup_tester_ssh_connection.sudo(
-            f"DEBIAN_FRONTEND=noninteractive apt install --assume-yes --no-install-recommends ./{filename}"
+            f"DEBIAN_FRONTEND=noninteractive apt install --assume-yes --no-install-recommends --allow-downgrades ./{filename}"
         )
 
     # Verify that the packages were installed
