@@ -11,7 +11,7 @@ variables:
     matrix:
       - BUILD: crosscompile
         DISTRO: debian
-        RELEASE: [bullseye, bookworm, trixie]
+        RELEASE: [bookworm, trixie]
         ARCH: [amd64, armhf, arm64]
       - BUILD: crosscompile
         DISTRO: ubuntu
@@ -399,7 +399,7 @@ publish:mender-dist-packages-image:
     # key. Use arbitrary one of them and assume that they all passed (using
     # depends instead of needs ensures that the whole previous build stage
     # needs to pass, so it should be safe).
-    - "build:mender-dist-packages-image: [crosscompile, debian, bullseye, amd64]"
+    - "build:mender-dist-packages-image: [crosscompile, debian, trixie, amd64]"
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
   script:
