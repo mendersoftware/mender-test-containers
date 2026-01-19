@@ -1,9 +1,9 @@
-FROM debian:bullseye
-LABEL REFRESHED_AT=20231227
+FROM debian:bookworm
+LABEL REFRESHED_AT=20260118
 # image used inside Gitlab CICD Pipelines
 # specifically, sre-tools mongodb backup pipelines
 
-ENV RELEASE_NAME bullseye
+ENV RELEASE_NAME bookworm
 
 # OS depenencies
 RUN apt-get update && \

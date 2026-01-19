@@ -1,5 +1,5 @@
-FROM python:slim-bullseye
-LABEL REFRESHED_AT=20251031
+FROM python:slim-trixie
+LABEL REFRESHED_AT=20260118
 # image used inside Gitlab CICD Pipelines
 
 # Application list
