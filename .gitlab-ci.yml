@@ -92,6 +92,12 @@ build:gui-e2e-testing:
   artifacts:
     paths:
       - checksums
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 build:mender-client-acceptance-testing:
   tags:
@@ -123,6 +129,12 @@ build:mender-client-acceptance-testing:
   artifacts:
     paths:
       - checksums
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 build:aws-k8s-pipeline-toolbox:
   tags:
@@ -153,6 +165,12 @@ build:aws-k8s-pipeline-toolbox:
         -f aws-k8s-toolbox/Dockerfile
         --push
         aws-k8s-toolbox
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 .build:mender-dist-packages-image:
   tags:
@@ -179,6 +197,12 @@ build:aws-k8s-pipeline-toolbox:
          --arch ${ARCH}
          --ci-pipeline-id ${CI_PIPELINE_ID}
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 build:mender-dist-packages-image:
   rules:
@@ -212,6 +236,12 @@ build:docker-multiplatform-buildx:
         -f docker-multiplatform-buildx/Dockerfile
         --push
         docker-multiplatform-buildx
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 build:goveralls:
   tags:
@@ -236,6 +266,12 @@ build:goveralls:
         -f goveralls/Dockerfile
         --push
         goveralls
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 build:mongodb-backup-runner:
   tags:
@@ -260,6 +296,12 @@ build:mongodb-backup-runner:
         -f mongodb-backup-runner/Dockerfile
         --push
         mongodb-backup-runner
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 build:terragrunt-trivy-toolbox:
   tags:
@@ -284,6 +326,12 @@ build:terragrunt-trivy-toolbox:
         -f terragrunt-trivy-toolbox/Dockerfile
         --push
         terragrunt-trivy-toolbox
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 build:release-please:
   tags:
@@ -314,7 +362,12 @@ build:release-please:
         --provenance false
         --push
         ${DOCKER_DIR:-.}
-
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 .template:publish:
   tags:
@@ -329,6 +382,12 @@ build:release-please:
     - *requires-docker
     - echo -n $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
 
 publish:gui-e2e-testing:
   extends: .template:publish
@@ -446,3 +505,4 @@ publish:release-please:
     CONTAINER_TAG: "release-please-v1"
   script:
     - *tag_n_push_to_gitlab_registry
+
