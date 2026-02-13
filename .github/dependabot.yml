@@ -39,3 +39,21 @@ updates:
       docker-aws-k8s-toolbox-dependencies:
         patterns:
           - "*"
+  - commit-message:
+      prefix: chore
+    directory: /base-debian
+    package-ecosystem: docker
+    schedule:
+      interval: monthly
+  - commit-message:
+      prefix: chore
+    directory: /base-ubuntu
+    package-ecosystem: docker
+    schedule:
+      interval: monthly
+  - commit-message:
+      prefix: chore
+    directory: /base-alpine
+    package-ecosystem: docker
+    schedule:
+      interval: monthly

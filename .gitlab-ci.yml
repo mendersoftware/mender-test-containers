@@ -369,6 +369,81 @@ build:release-please:
       - 137
       - 192
 
+.build:base-image:
+  tags:
+    - k8s
+  stage: build
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
+  needs: []
+  variables:
+    DOCKER_HOST: "tcp://docker:2376"
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  services:
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
+      alias: docker
+  before_script:
+    - *requires-docker
+    - *dind-login
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker context create builder
+    - docker buildx create builder --use --driver-opt "image=moby/buildkit:v0.17.3,network=host" --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
+  script:
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} and ${CONTAINER_TAG}-${CI_COMMIT_BRANCH} to the registry ${CI_REGISTRY_IMAGE}"
+    - cd ${BASE_IMAGE_DIR}
+    - docker buildx build
+        --platform linux/amd64,linux/arm64
+        --cache-to type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache,mode=max
+        --cache-from type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache
+        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
+        --provenance false
+        --push
+        .
+  retry:
+    max: 2
+    exit_codes:
+      - 2
+      - 137
+      - 192
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+
+build:base-debian:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "base-debian"
+    BASE_IMAGE_DIR: "base-debian"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - base-debian/Dockerfile
+    - when: manual
+
+build:base-ubuntu:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "base-ubuntu"
+    BASE_IMAGE_DIR: "base-ubuntu"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - base-ubuntu/Dockerfile
+    - when: manual
+
+build:base-alpine:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "base-alpine"
+    BASE_IMAGE_DIR: "base-alpine"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - base-alpine/Dockerfile
+    - when: manual
+
 .template:publish:
   tags:
     - hetzner-amd-beefy
