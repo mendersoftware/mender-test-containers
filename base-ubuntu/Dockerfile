@@ -16,6 +16,7 @@ RUN apt-get update && \
         build-essential \
         make \
         gettext-base \
+        ssh-client \
         unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

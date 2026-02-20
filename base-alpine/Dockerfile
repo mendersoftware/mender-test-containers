@@ -17,6 +17,7 @@ RUN apk add --no-cache \
         findutils \
         coreutils \
         gettext \
+        openssh-client \
         aws-cli
 
 RUN curl --version && \
