@@ -18,7 +18,8 @@ RUN apk add --no-cache \
         coreutils \
         gettext \
         openssh-client \
-        aws-cli
+        aws-cli \
+        xz
 
 RUN curl --version && \
     wget --version && \
