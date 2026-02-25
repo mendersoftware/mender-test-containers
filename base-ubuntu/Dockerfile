@@ -17,7 +17,8 @@ RUN apt-get update && \
         make \
         gettext-base \
         ssh-client \
-        unzip && \
+        unzip \
+        xz-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
