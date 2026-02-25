@@ -422,6 +422,7 @@ build:base-debian:
       changes:
         - base-debian/Dockerfile
     - when: manual
+      allow_failure: true
 
 build:base-ubuntu:
   extends: .build:base-image
@@ -433,6 +434,7 @@ build:base-ubuntu:
       changes:
         - base-ubuntu/Dockerfile
     - when: manual
+      allow_failure: true
 
 build:base-alpine:
   extends: .build:base-image
@@ -444,6 +446,7 @@ build:base-alpine:
       changes:
         - base-alpine/Dockerfile
     - when: manual
+      allow_failure: true
 
 .template:publish:
   tags:
