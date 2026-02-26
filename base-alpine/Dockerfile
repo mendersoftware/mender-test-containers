@@ -1,4 +1,4 @@
-FROM alpine:3.22.1
+FROM alpine:3.23.3
 
 LABEL REFRESHED_AT=20260211
 
