@@ -57,3 +57,15 @@ updates:
     package-ecosystem: docker
     schedule:
       interval: monthly
+  - commit-message:
+      prefix: chore
+    directory: /python-black
+    package-ecosystem: docker
+    schedule:
+      interval: monthly
+  - commit-message:
+      prefix: chore
+    directory: /python-black
+    package-ecosystem: pip
+    schedule:
+      interval: monthly
