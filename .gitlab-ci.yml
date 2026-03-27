@@ -448,6 +448,19 @@ build:base-alpine:
     - when: manual
       allow_failure: true
 
+build:python-black:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "python-black"
+    BASE_IMAGE_DIR: "python-black"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - python-black/Dockerfile
+        - python-black/requirements_py3.txt
+    - when: manual
+      allow_failure: true
+
 .template:publish:
   tags:
     - hetzner-amd-beefy
