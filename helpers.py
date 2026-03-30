@@ -22,7 +22,6 @@ import stat
 import subprocess
 import time
 
-
 LOCAL_RUN_NO_CONTAINER = "LOCAL"
 
 
