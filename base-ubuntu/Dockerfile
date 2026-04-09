@@ -1,4 +1,4 @@
-FROM ubuntu:noble-20260113
+FROM ubuntu:noble-20260324
 
 LABEL REFRESHED_AT=20260211
 
