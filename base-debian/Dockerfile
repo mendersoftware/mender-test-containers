@@ -1,4 +1,4 @@
-FROM debian:trixie-20260202-slim
+FROM debian:trixie-20260406-slim
 
 LABEL REFRESHED_AT=20260211
 
