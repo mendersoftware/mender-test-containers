@@ -356,6 +356,7 @@ build:release-please:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    PLATFORMS: "linux/amd64,linux/arm64"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -369,7 +370,7 @@ build:release-please:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} and ${CONTAINER_TAG}-${CI_COMMIT_BRANCH} to the registry ${CI_REGISTRY_IMAGE}"
     - cd ${BASE_IMAGE_DIR}
     - docker buildx build
-        --platform linux/amd64,linux/arm64
+        --platform ${PLATFORMS}
         --cache-to type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache,mode=max
         --cache-from type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache
         --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
@@ -413,6 +414,19 @@ build:base-alpine:
         - base-alpine/Dockerfile
     - when: manual
       allow_failure: true
+
+build:base-mender-cpp:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "base-mender-cpp"
+    BASE_IMAGE_DIR: "base-mender-cpp"
+    PLATFORMS: "linux/amd64"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - when: manual
+      allow_failure: true
+  tags:
+    - hetzner-amd-beefy
 
 build:python-black:
   extends: .build:base-image

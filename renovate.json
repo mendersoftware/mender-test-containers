@@ -23,7 +23,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/gui-e2e-testing\/Dockerfile/"],
+      "managerFilePatterns": ["/gui-e2e-testing\/Dockerfile/", "/base-mender-cpp\/Dockerfile/"],
       "matchStrings": [
         "MENDER_ARTIFACT_VERSION=\\s*[\"']?(?<currentValue>[\\d\\.]+)[\"']?"
       ],
