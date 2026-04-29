@@ -441,6 +441,18 @@ build:python-black:
     - when: manual
       allow_failure: true
 
+build:github-status:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "github-status"
+    BASE_IMAGE_DIR: "github-status"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - github-status/Dockerfile
+    - when: manual
+      allow_failure: true
+
 .template:publish:
   tags:
     - hetzner-amd-beefy

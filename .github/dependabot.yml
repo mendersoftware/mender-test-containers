@@ -69,3 +69,9 @@ updates:
     package-ecosystem: pip
     schedule:
       interval: monthly
+  - commit-message:
+      prefix: chore
+    directory: /github-status
+    package-ecosystem: docker
+    schedule:
+      interval: monthly
