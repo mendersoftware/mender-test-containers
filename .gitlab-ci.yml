@@ -38,8 +38,12 @@ variables:
 
 .tag_n_push_to_gitlab_registry: &tag_n_push_to_gitlab_registry
   - docker pull ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+  # Legacy naming scheme (to be removed after downstream migration)
   - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
   - docker push ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
+  # New naming scheme (separate image repositories)
+  - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${IMAGE_TAG}
+  - docker push ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${IMAGE_TAG}
 
 include:
   - project: Northern.tech/Mender/mendertesting
@@ -99,6 +103,7 @@ build:gui-e2e-testing:
   needs: []
   variables:
     CONTAINER_TAG: "gui-e2e-testing"
+    IMAGE_NAME: "gui-e2e-testing"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -113,6 +118,7 @@ build:gui-e2e-testing:
     - docker build
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
         -f gui-e2e-testing/Dockerfile
         --push
         gui-e2e-testing
@@ -131,6 +137,7 @@ build:mender-client-acceptance-testing:
   needs: []
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
+    IMAGE_NAME: "mender-client-acceptance-testing"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -144,6 +151,7 @@ build:mender-client-acceptance-testing:
     - docker build
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
         -f mender-client-acceptance-testing/Dockerfile
         --push
         mender-client-acceptance-testing
@@ -162,6 +170,7 @@ build:aws-k8s-pipeline-toolbox:
   needs: []
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
+    IMAGE_NAME: "aws-k8s-toolbox"
     CI_KUBECTL_VERSION: "1.32.9"
     CI_HELM_VERSION: "v3.18.6"
     CI_KUBECONFORM_VERSION: "0.6.3"
@@ -177,6 +186,7 @@ build:aws-k8s-pipeline-toolbox:
     - docker build
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
         --build-arg KUBECTL_VERSION=${CI_KUBECTL_VERSION}
         --build-arg HELM_VERSION=${CI_HELM_VERSION}
         --build-arg KUBECONFORM_VERSION=${CI_KUBECONFORM_VERSION}
@@ -208,6 +218,9 @@ build:aws-k8s-pipeline-toolbox:
          --release ${RELEASE}
          --arch ${ARCH}
          --ci-pipeline-id ${CI_PIPELINE_ID}
+    # New naming scheme (separate image repository)
+    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}/mender-dist-packages-builder:${BUILD}-${DISTRO}-${RELEASE}-${ARCH}-${CI_PIPELINE_ID}
+    - docker push ${CI_REGISTRY_IMAGE}/mender-dist-packages-builder:${BUILD}-${DISTRO}-${RELEASE}-${ARCH}-${CI_PIPELINE_ID}
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
 
 build:mender-dist-packages-image:
@@ -227,6 +240,7 @@ build:docker-multiplatform-buildx:
   needs: []
   variables:
     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
+    IMAGE_NAME: "docker-multiplatform-buildx"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -239,6 +253,7 @@ build:docker-multiplatform-buildx:
     - docker build
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
         -f docker-multiplatform-buildx/Dockerfile
         --push
         docker-multiplatform-buildx
@@ -251,6 +266,7 @@ build:goveralls:
   needs: []
   variables:
     CONTAINER_TAG: "goveralls"
+    IMAGE_NAME: "goveralls"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -263,6 +279,7 @@ build:goveralls:
     - docker build
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
         -f goveralls/Dockerfile
         --push
         goveralls
@@ -275,6 +292,7 @@ build:mongodb-backup-runner:
   needs: []
   variables:
     CONTAINER_TAG: "mongodb-backup-runner"
+    IMAGE_NAME: "mongodb-backup-runner"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -287,6 +305,7 @@ build:mongodb-backup-runner:
     - docker build
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
         -f mongodb-backup-runner/Dockerfile
         --push
         mongodb-backup-runner
@@ -299,6 +318,7 @@ build:terragrunt-trivy-toolbox:
   needs: []
   variables:
     CONTAINER_TAG: "terragrunt-trivy-v1"
+    IMAGE_NAME: "terragrunt-trivy-toolbox"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -311,6 +331,7 @@ build:terragrunt-trivy-toolbox:
     - docker build
         --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
         -f terragrunt-trivy-toolbox/Dockerfile
         --push
         terragrunt-trivy-toolbox
@@ -323,6 +344,7 @@ build:release-please:
   needs: []
   variables:
     CONTAINER_TAG: "release-please-v1"
+    IMAGE_NAME: "release-please"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -340,6 +362,7 @@ build:release-please:
         --cache-to type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache,mode=max
         --cache-from type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache
         --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
         --file ${DOCKER_DIR:-.}/${DOCKERFILE:-Dockerfile}
         --provenance false
         --push
@@ -375,6 +398,8 @@ build:release-please:
         --cache-from type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache
         --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
         --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
+        --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
+        --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_COMMIT_BRANCH}
         --provenance false
         --push
         .
@@ -383,6 +408,7 @@ build:base-debian:
   extends: .build:base-image
   variables:
     CONTAINER_TAG: "base-debian"
+    IMAGE_NAME: "base-debian"
     BASE_IMAGE_DIR: "base-debian"
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
@@ -395,6 +421,7 @@ build:base-ubuntu:
   extends: .build:base-image
   variables:
     CONTAINER_TAG: "base-ubuntu"
+    IMAGE_NAME: "base-ubuntu"
     BASE_IMAGE_DIR: "base-ubuntu"
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
@@ -407,6 +434,7 @@ build:base-alpine:
   extends: .build:base-image
   variables:
     CONTAINER_TAG: "base-alpine"
+    IMAGE_NAME: "base-alpine"
     BASE_IMAGE_DIR: "base-alpine"
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
@@ -419,6 +447,7 @@ build:base-mender-cpp:
   extends: .build:base-image
   variables:
     CONTAINER_TAG: "base-mender-cpp"
+    IMAGE_NAME: "base-mender-cpp"
     BASE_IMAGE_DIR: "base-mender-cpp"
     PLATFORMS: "linux/amd64"
   rules:
@@ -432,6 +461,7 @@ build:python-black:
   extends: .build:base-image
   variables:
     CONTAINER_TAG: "python-black"
+    IMAGE_NAME: "python-black"
     BASE_IMAGE_DIR: "python-black"
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
@@ -462,6 +492,8 @@ publish:gui-e2e-testing:
       artifacts: true
   variables:
     CONTAINER_TAG: "gui-e2e-testing"
+    IMAGE_NAME: "gui-e2e-testing"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     # backward compatibility: pushing to the Docker Hub
     - apk add --no-cache aws-cli curl
@@ -482,6 +514,8 @@ publish:mender-client-acceptance-testing:
       artifacts: true
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
+    IMAGE_NAME: "mender-client-acceptance-testing"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     # backward compatibility: pushing to the Docker Hub
     - apk add --no-cache aws-cli curl
@@ -502,6 +536,8 @@ publish:aws-k8s-pipeline-toolbox:
       artifacts: true
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
+    IMAGE_NAME: "aws-k8s-toolbox"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     - *tag_n_push_to_gitlab_registry
 
@@ -512,6 +548,8 @@ publish:docker-multiplatform-buildx:
       artifacts: true
   variables:
     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
+    IMAGE_NAME: "docker-multiplatform-buildx"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     - *tag_n_push_to_gitlab_registry
 
@@ -529,6 +567,8 @@ publish:mender-dist-packages-image:
     - if: $CI_COMMIT_BRANCH == "master"
   script:
     - CONTAINER_TAG=mender-dist-packages-builder-${BUILD}-${DISTRO}-${RELEASE}-${ARCH}
+    - IMAGE_NAME=mender-dist-packages-builder
+    - IMAGE_TAG=${BUILD}-${DISTRO}-${RELEASE}-${ARCH}-${CI_COMMIT_BRANCH}
     - *tag_n_push_to_gitlab_registry
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
 
@@ -539,6 +579,8 @@ publish:goveralls:
       artifacts: true
   variables:
     CONTAINER_TAG: "goveralls"
+    IMAGE_NAME: "goveralls"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     - *tag_n_push_to_gitlab_registry
 
@@ -549,6 +591,8 @@ publish:mongodb-backup-runner:
       artifacts: true
   variables:
     CONTAINER_TAG: "mongodb-backup-runner"
+    IMAGE_NAME: "mongodb-backup-runner"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     - *tag_n_push_to_gitlab_registry
 
@@ -559,6 +603,8 @@ publish:terragrunt-trivy-toolbox:
       artifacts: true
   variables:
     CONTAINER_TAG: "terragrunt-trivy-v1"
+    IMAGE_NAME: "terragrunt-trivy-toolbox"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     - *tag_n_push_to_gitlab_registry
 
@@ -569,5 +615,7 @@ publish:release-please:
       artifacts: true
   variables:
     CONTAINER_TAG: "release-please-v1"
+    IMAGE_NAME: "release-please"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     - *tag_n_push_to_gitlab_registry
