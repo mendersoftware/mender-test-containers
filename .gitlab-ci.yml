@@ -457,6 +457,18 @@ build:base-mender-cpp:
   tags:
     - hetzner-amd-beefy
 
+build:mender-base-ubuntu:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "mender-base-ubuntu"
+    IMAGE_NAME: "mender-base-ubuntu"
+    BASE_IMAGE_DIR: "mender-base-ubuntu"
+    PLATFORMS: "linux/amd64"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - when: manual
+      allow_failure: true
+
 build:python-black:
   extends: .build:base-image
   variables:
