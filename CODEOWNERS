@@ -3,6 +3,33 @@
 
 # Client testing
 /mender-client-acceptance-testing/ @mendersoftware/client-dependabot-reviewers
+/base-mender-cpp/ @mendersoftware/client-dependabot-reviewers
+/qemu-test-containers/ @mendersoftware/client-dependabot-reviewers
+/mender-dist-packages-building/ @mendersoftware/client-dependabot-reviewers
+
+# sre-tools mongodb backup pipelines
+/mongodb-backup-runner/ @mendersoftware/sre-dependabot-reviewers
+
+# Terraform with trivy testing
+/terragrunt-trivy-toolbox/ @mendersoftware/sre-dependabot-reviewers
 
 # AWS toolbox
 /aws-k8s-toolbox/ @mendersoftware/qa-dependabot-reviewers
+
+# Generic base container images
+/base-alpine/ @mendersoftware/qa-dependabot-reviewers
+/base-debian/ @mendersoftware/qa-dependabot-reviewers
+/base-ubuntu/ @mendersoftware/qa-dependabot-reviewers
+/mender-base-ubuntu/ @mendersoftware/qa-dependabot-reviewers
+
+# Release-please
+/release-please/ @mendersoftware/qa-dependabot-reviewers
+
+# multiplatform-buildx
+/docker-multiplatform-buildx/ @mendersoftware/qa-dependabot-reviewers
+
+# Python formatting
+/python-black/ @mendersoftware/qa-dependabot-reviewers
+
+# Goveralls
+/goveralls/ @mendersoftware/qa-dependabot-reviewers
