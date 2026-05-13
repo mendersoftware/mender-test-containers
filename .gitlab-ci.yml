@@ -258,32 +258,6 @@ build:docker-multiplatform-buildx:
         --push
         docker-multiplatform-buildx
 
-build:goveralls:
-  tags:
-    - hetzner-amd-beefy
-  stage: build
-  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
-  needs: []
-  variables:
-    CONTAINER_TAG: "goveralls"
-    IMAGE_NAME: "goveralls"
-  services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
-      alias: docker
-  before_script:
-    - *requires-docker
-    - *dind-login
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-master
-        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
-        -f goveralls/Dockerfile
-        --push
-        goveralls
-
 build:mongodb-backup-runner:
   tags:
     - hetzner-amd-beefy
@@ -583,18 +557,6 @@ publish:mender-dist-packages-image:
     - IMAGE_TAG=${BUILD}-${DISTRO}-${RELEASE}-${ARCH}-${CI_COMMIT_BRANCH}
     - *tag_n_push_to_gitlab_registry
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
-
-publish:goveralls:
-  extends: .template:publish
-  needs:
-    - job: build:goveralls
-      artifacts: true
-  variables:
-    CONTAINER_TAG: "goveralls"
-    IMAGE_NAME: "goveralls"
-    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
-  script:
-    - *tag_n_push_to_gitlab_registry
 
 publish:mongodb-backup-runner:
   extends: .template:publish
