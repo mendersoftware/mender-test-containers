@@ -321,7 +321,7 @@ build:release-please:
     - *dind-login
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker context create builder
-    - docker buildx create builder --use --driver-opt "image=moby/buildkit:v0.17.3,network=host" --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
+    - docker buildx create builder --use --driver-opt network=host --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - apk add --no-cache git
@@ -356,7 +356,7 @@ build:release-please:
     - *dind-login
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker context create builder
-    - docker buildx create builder --use --driver-opt "image=moby/buildkit:v0.17.3,network=host" --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
+    - docker buildx create builder --use --driver-opt network=host --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} and ${CONTAINER_TAG}-${CI_COMMIT_BRANCH} to the registry ${CI_REGISTRY_IMAGE}"
     - cd ${BASE_IMAGE_DIR}
