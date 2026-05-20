@@ -17,7 +17,11 @@ RUN install -m 0755 -d /etc/apt/keyrings && \
       > /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
     DOCKER_PKG_VERSION=$(apt-cache madison docker-ce-cli | awk -F'|' '/'"${DOCKER_VERSION}"'/ {gsub(/ /, "", $2); print $2; exit}') && \
-    apt-get install -y --no-install-recommends docker-ce-cli=${DOCKER_PKG_VERSION} docker-buildx-plugin docker-compose-plugin && \
+    apt-get install -y --no-install-recommends docker-ce-cli=${DOCKER_PKG_VERSION} docker-buildx-plugin docker-compose-plugin unzip && \
+    curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o /tmp/awscliv2.zip && \
+    unzip -q /tmp/awscliv2.zip -d /tmp && \
+    /tmp/aws/install && \
+    rm -rf /tmp/awscliv2.zip /tmp/aws && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /e2e
