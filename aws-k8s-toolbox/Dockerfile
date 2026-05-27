@@ -6,6 +6,8 @@ LABEL REFRESHED_AT=20260118
 ARG KUBECTL_VERSION=1.32.9
 ARG HELM_VERSION=v3.18.6
 ARG KUBECONFORM_VERSION=0.6.3
+ARG PLUTO_VERSION=5.24.0
+ARG TRIVY_VERSION=0.70.0
 ARG YQ_VERSION=4.33.2
 
 # env
@@ -69,6 +71,21 @@ RUN ARCH=amd64 \
 RUN curl -fsSL -o /tmp/kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz \
     && tar -xzf /tmp/kubeconform.tar.gz -C ${BIN_DIR} \
     && rm /tmp/kubeconform.tar.gz
+
+# pluto - detect deprecated/removed Kubernetes API versions
+RUN curl -fsSL -o /tmp/pluto.tar.gz \
+      "https://github.com/FairwindsOps/pluto/releases/download/v${PLUTO_VERSION}/pluto_${PLUTO_VERSION}_linux_amd64.tar.gz" \
+    && tar -xzf /tmp/pluto.tar.gz -C ${BIN_DIR} pluto \
+    && rm /tmp/pluto.tar.gz \
+    && chmod +x ${BIN_DIR}/pluto \
+    && ${BIN_DIR}/pluto version
+
+# trivy - misconfiguration scanner and SBOM generator
+RUN curl -fsSL -o /tmp/trivy.tar.gz \
+      "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+    && tar -xzf /tmp/trivy.tar.gz -C ${BIN_DIR} trivy \
+    && rm /tmp/trivy.tar.gz \
+    && ${BIN_DIR}/trivy version
 
 # awscli install
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
