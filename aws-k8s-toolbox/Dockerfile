@@ -5,14 +5,15 @@ LABEL REFRESHED_AT=20260118
 # Application list
 ARG KUBECTL_VERSION=1.32.9
 ARG HELM_VERSION=v3.18.6
+ARG HELM_UNITTEST_VERSION=1.1.0
 ARG KUBECONFORM_VERSION=0.6.3
 ARG PLUTO_VERSION=5.24.0
 ARG TRIVY_VERSION=0.70.0
 ARG YQ_VERSION=4.33.2
 
 # env
-ENV BIN_DIR /opt/builder/bin
-ENV USER builder
+ENV BIN_DIR=/opt/builder/bin
+ENV USER=builder
 
 # OS depenencies
 RUN apt-get update && \
@@ -34,6 +35,7 @@ RUN apt-get update && \
 # workdir
 RUN useradd -ms /bin/bash ${USER} -d /opt/${USER}
 WORKDIR ${BIN_DIR}
+ENV PATH="${BIN_DIR}:${PATH}"
 
 # kubectl
 RUN curl -o ${BIN_DIR}/kubectl -L -s "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
@@ -47,7 +49,7 @@ RUN curl -o ${BIN_DIR}/kubectl -L -s "https://dl.k8s.io/release/v${KUBECTL_VERSI
     && chown ${USER}. ${KUBECTL_BIN}
     
 # helm
-ENV HELM3_DOWNLOAD_URL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+ENV HELM3_DOWNLOAD_URL=https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 RUN curl -fsSL -o ${BIN_DIR}/get_helm.sh ${HELM3_DOWNLOAD_URL} \
     && chmod 700 ${BIN_DIR}/get_helm.sh \
     && DESIRED_VERSION=${HELM_VERSION} ${BIN_DIR}/get_helm.sh \
@@ -58,6 +60,9 @@ RUN curl -fsSL -o ${BIN_DIR}/get_helm.sh ${HELM3_DOWNLOAD_URL} \
     && ${HELM_BIN} version \
     && rm ${BIN_DIR}/get_helm.sh \
     && chown ${USER}. ${HELM_BIN}
+
+# helm-unittest plugin
+RUN helm plugin install https://github.com/helm-unittest/helm-unittest --version v${HELM_UNITTEST_VERSION}
 
 # eskctl
 RUN ARCH=amd64 \
@@ -98,4 +103,3 @@ RUN wget https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_lin
     && mv ./yq_linux_amd64 ./yq
 
 #USER ${USER}
-ENV PATH="${BIN_DIR}:${PATH}"
