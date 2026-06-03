@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=non-interactive
 RUN apt update && \
     apt install -yyq \
     ccache clang cmake git g++ make pkg-config lcov \
-    liblmdb++-dev libboost-dev libboost-log-dev libssl-dev libarchive-dev libdbus-1-dev \
+    liblmdb++-dev libboost-dev libboost-log-dev libssl-dev libarchive-dev libdbus-1-dev libc++-dev libc++abi-dev \
     curl dbus stunnel4 tinyproxy-bin netcat-openbsd wget zstd xz-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
