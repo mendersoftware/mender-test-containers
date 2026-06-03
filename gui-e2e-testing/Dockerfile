@@ -6,7 +6,7 @@ RUN deb_filename=mender-artifact_${MENDER_ARTIFACT_VERSION}_${TARGETARCH}.deb &&
     wget "https://downloads.mender.io/repos/workstation-tools/pool/main/m/mender-artifact/${deb_filename}" \
     --output-document=/mender-artifact.deb && dpkg-deb --extract /mender-artifact.deb /
 
-FROM mcr.microsoft.com/playwright:v1.59.1
+FROM mcr.microsoft.com/playwright:v1.60.0
 
 ARG DOCKER_VERSION=29.1
 RUN install -m 0755 -d /etc/apt/keyrings && \
