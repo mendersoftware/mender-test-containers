@@ -31,7 +31,7 @@ variables:
         ARCH: [amd64, armhf, arm64]
       - BUILD: crosscompile
         DISTRO: ubuntu
-        RELEASE: [jammy, noble]
+        RELEASE: [jammy, noble, resolute]
         ARCH: [amd64, armhf, arm64]
 
 .tag_n_push_to_gitlab_registry: &tag_n_push_to_gitlab_registry
