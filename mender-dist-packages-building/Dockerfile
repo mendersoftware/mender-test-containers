@@ -46,6 +46,10 @@ RUN apt-get install -y \
     libc6-dev:${ARCH} \
     linux-libc-dev:${ARCH}
 
+RUN if [ "${RELEASE}" == "resolute" ]; then \
+        apt-get install -y libicu-dev; \
+    fi
+
 RUN if [ "${ARCH}" = "arm64" ]; then \
         apt-get install -y gcc-aarch64-linux-gnu; \
     fi
