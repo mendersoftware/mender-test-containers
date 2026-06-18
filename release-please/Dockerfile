@@ -1,5 +1,5 @@
-FROM node:22
-LABEL REFRESHED_AT=20241112
+FROM node:26
+LABEL REFRESHED_AT=20261806
 # image used inside Gitlab CICD Pipelines
 
 # release-please
