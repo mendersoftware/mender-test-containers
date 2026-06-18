@@ -2,7 +2,21 @@ image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:git
 
 variables:
   DOCKER_BUILDKIT: 1
-  DOCKER_VERSION: "27.3"
+  DOCKER_VERSION:
+    value: "29.1"
+    description: "Version of docker to use in pipelines"
+  DOCKER_HOST:
+    value: 'tcp://docker:2376'
+    description: "Required to run dind inside k8s runners with TLS"
+  DOCKER_TLS_CERTDIR:
+    value: '/certs'
+    description: "The cert dir inside the gitlab runner. Don't change this."
+  DOCKER_TLS_VERIFY:
+    value: 1
+    description: "Enable TLS verification for docker in dind"
+  DOCKER_CERT_PATH:
+    value: "$DOCKER_TLS_CERTDIR/client"
+    description: "Used for docker entrypoints. See https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4125"
 
   # Renovate required variables
   RENOVATE_PLATFORM: github
@@ -91,8 +105,6 @@ stages:
   - publish
 
 build:gui-e2e-testing:
-  tags:
-    - hetzner-amd-beefy
   stage: build
   needs: []
   variables:
@@ -157,8 +169,6 @@ build:mender-client-acceptance-testing:
       - checksums
 
 build:aws-k8s-pipeline-toolbox:
-  tags:
-    - hetzner-amd-beefy
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
@@ -227,8 +237,6 @@ build:mender-dist-packages-image:manual:
   extends: .build:mender-dist-packages-image
 
 build:docker-multiplatform-buildx:
-  tags:
-    - hetzner-amd-beefy
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
@@ -253,8 +261,6 @@ build:docker-multiplatform-buildx:
         docker-multiplatform-buildx
 
 build:mongodb-backup-runner:
-  tags:
-    - hetzner-amd-beefy
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
@@ -279,8 +285,6 @@ build:mongodb-backup-runner:
         mongodb-backup-runner
 
 build:terragrunt-trivy-toolbox:
-  tags:
-    - hetzner-amd-beefy
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
@@ -305,8 +309,6 @@ build:terragrunt-trivy-toolbox:
         terragrunt-trivy-toolbox
 
 build:release-please:
-  tags:
-    - hetzner-amd-beefy
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
@@ -337,8 +339,6 @@ build:release-please:
         ${DOCKER_DIR:-.}
 
 .build:base-image:
-  tags:
-    - k8s
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
@@ -422,8 +422,6 @@ build:base-mender-cpp:
     - if: $CI_COMMIT_BRANCH == "master"
     - when: manual
       allow_failure: true
-  tags:
-    - hetzner-amd-beefy
 
 build:mender-base-ubuntu:
   extends: .build:base-image
@@ -452,8 +450,6 @@ build:python-black:
       allow_failure: true
 
 .template:publish:
-  tags:
-    - hetzner-amd-beefy
   stage: publish
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
