@@ -32,6 +32,15 @@
       "extractVersionTemplate": "^v?(?<version>.*)$",
       "versioningTemplate": "semver"
     },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/base-mender-go\/Dockerfile/"],
+      "matchStrings": [
+        "go install github\\.com/jstemmer/go-junit-report@(?<currentValue>v[\\d\\.]+)"
+      ],
+      "depNameTemplate": "jstemmer/go-junit-report",
+      "datasourceTemplate": "github-tags"
+    },
   ],
 
   "prHourlyLimit": 0
