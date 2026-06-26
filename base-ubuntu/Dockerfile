@@ -18,6 +18,9 @@ RUN apt-get update && \
         gettext-base \
         ssh-client \
         unzip \
+        python3 \
+        python3-pip \
+        python3-venv \
         xz-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
