@@ -448,6 +448,19 @@ build:python-black:
     - when: manual
       allow_failure: true
 
+build:base-mender-go:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "base-mender-go"
+    IMAGE_NAME: "base-mender-go"
+    BASE_IMAGE_DIR: "base-mender-go"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - base-mender-go/Dockerfile
+    - when: manual
+      allow_failure: true
+
 .template:publish:
   stage: publish
   services:
