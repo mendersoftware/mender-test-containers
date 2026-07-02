@@ -18,6 +18,13 @@
       "matchManagers": ["git-submodules"],
       "enabled": false
     },
+    {
+      // Track the base-mender-go-test golang base image (docker category is paused above)
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["golang"],
+      "matchFileNames": ["base-mender-go-test/Dockerfile"],
+      "enabled": true
+    },
   ],
 
   "customManagers": [
@@ -31,6 +38,15 @@
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v?(?<version>.*)$",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/base-mender-go-test\/Dockerfile/"],
+      "matchStrings": [
+        "go install gotest\\.tools/gotestsum@(?<currentValue>v[\\d\\.]+)"
+      ],
+      "depNameTemplate": "gotestyourself/gotestsum",
+      "datasourceTemplate": "github-tags"
     },
   ],
 

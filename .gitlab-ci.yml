@@ -462,6 +462,19 @@ build:mender-cli-acceptance-testing:
     - when: manual
       allow_failure: true
 
+build:base-mender-go-test:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "base-mender-go-test"
+    IMAGE_NAME: "base-mender-go-test"
+    BASE_IMAGE_DIR: "base-mender-go-test"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - base-mender-go-test/Dockerfile
+    - when: manual
+      allow_failure: true
+
 .template:publish:
   stage: publish
   services:
