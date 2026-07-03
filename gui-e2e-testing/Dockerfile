@@ -1,4 +1,4 @@
-FROM alpine:3.23.4 AS mender-artifact-get
+FROM alpine:3.24.1 AS mender-artifact-get
 ARG TARGETARCH
 ARG MENDER_ARTIFACT_VERSION=4.4.0-1+ubuntu+noble
 RUN apk --no-cache add dpkg zstd
@@ -6,7 +6,7 @@ RUN deb_filename=mender-artifact_${MENDER_ARTIFACT_VERSION}_${TARGETARCH}.deb &&
     wget "https://downloads.mender.io/repos/workstation-tools/pool/main/m/mender-artifact/${deb_filename}" \
     --output-document=/mender-artifact.deb && dpkg-deb --extract /mender-artifact.deb /
 
-FROM mcr.microsoft.com/playwright:v1.60.0
+FROM mcr.microsoft.com/playwright:v1.61.1
 
 ARG DOCKER_VERSION=29.1
 RUN install -m 0755 -d /etc/apt/keyrings && \
@@ -27,7 +27,7 @@ RUN install -m 0755 -d /etc/apt/keyrings && \
 WORKDIR /e2e
 ENV CI=1
 ADD https://dgsbl4vditpls.cloudfront.net/mender-demo-artifact.mender ./
-ADD https://raw.githubusercontent.com/mendersoftware/gui/master/tests/e2e_tests/package.json ./
-ADD https://raw.githubusercontent.com/mendersoftware/gui/master/tests/e2e_tests/package-lock.json ./
+ADD https://raw.githubusercontent.com/mendersoftware/mender-server/main/frontend/tests/e2e_tests/package.json ./
+ADD https://raw.githubusercontent.com/mendersoftware/mender-server/main/frontend/tests/e2e_tests/package-lock.json ./
 COPY --from=mender-artifact-get /usr/bin/mender-artifact /usr/bin/mender-artifact
 RUN npm ci && npx playwright install chromium
