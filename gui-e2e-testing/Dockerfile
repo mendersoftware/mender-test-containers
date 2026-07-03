@@ -27,7 +27,7 @@ RUN install -m 0755 -d /etc/apt/keyrings && \
 WORKDIR /e2e
 ENV CI=1
 ADD https://dgsbl4vditpls.cloudfront.net/mender-demo-artifact.mender ./
-ADD https://raw.githubusercontent.com/mendersoftware/gui/master/tests/e2e_tests/package.json ./
-ADD https://raw.githubusercontent.com/mendersoftware/gui/master/tests/e2e_tests/package-lock.json ./
+ADD https://raw.githubusercontent.com/mendersoftware/mender-server/main/frontend/tests/e2e_tests/package.json ./
+ADD https://raw.githubusercontent.com/mendersoftware/mender-server/main/frontend/tests/e2e_tests/package-lock.json ./
 COPY --from=mender-artifact-get /usr/bin/mender-artifact /usr/bin/mender-artifact
 RUN npm ci && npx playwright install chromium
