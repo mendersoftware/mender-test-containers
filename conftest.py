@@ -105,7 +105,7 @@ def setup_mender_configured(
         "bash -c 'echo ${MACHTYPE%%-*}'"
     ).stdout.strip()
     os_name = (
-        setup_tester_ssh_connection.run("grep ^ID /etc/os-release")
+        setup_tester_ssh_connection.run("grep -w ID /etc/os-release")
         .stdout.strip()
         .split("=")[1]
     )
