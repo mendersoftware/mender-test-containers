@@ -1,5 +1,5 @@
 # Pinned to 22.04 due to QA-1690
-FROM ubuntu:22.04
+FROM ubuntu:26.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
