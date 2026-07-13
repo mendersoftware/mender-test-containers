@@ -199,7 +199,7 @@ build:aws-k8s-pipeline-toolbox:
 
 .build:mender-dist-packages-image:
   tags:
-    - hetzner-amd-beefy-privileged
+    - k8s
   stage: build
   needs: []
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:git
