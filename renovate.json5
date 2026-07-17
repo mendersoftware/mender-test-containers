@@ -30,6 +30,28 @@
       "depNameTemplate": "gotestyourself/gotestsum",
       "datasourceTemplate": "github-tags"
     },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/mongosh-k8s-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ARG KUBECTL_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "kubernetes/kubernetes",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/mongosh-k8s-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ARG MONGOSH_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "mongodb-js/mongosh",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
   ],
 
   "prHourlyLimit": 0

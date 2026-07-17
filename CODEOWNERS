@@ -14,7 +14,10 @@
 /terragrunt-trivy-toolbox/ @mendersoftware/sre-dependabot-reviewers
 
 # AWS toolbox
-/aws-k8s-toolbox/ @mendersoftware/qa-dependabot-reviewers
+/aws-k8s-toolbox/ @mendersoftware/sre-dependabot-reviewers
+
+# Mongosh + k8s toolbox
+/mongosh-k8s-toolbox/ @mendersoftware/sre-dependabot-reviewers
 
 # Generic base container images
 /base-alpine/ @mendersoftware/qa-dependabot-reviewers
