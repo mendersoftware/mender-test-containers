@@ -5,27 +5,9 @@
     ":gitSignOff",
     ":rebaseStalePrs"
   ],
-  "reviewers": ["team:frontend-dependabot-reviewers"],
+  "reviewersFromCodeOwners": true,
 
-  "packageRules": [
-    {
-      // TODO: remove some of these when we ditch dependabot
-      "matchCategories": ["python", "docker", "ci", "js", "golang"],
-      "enabled": false
-    },
-    {
-      // TODO: remove  when we ditch dependabot
-      "matchManagers": ["git-submodules"],
-      "enabled": false
-    },
-    {
-      // Track the base-mender-go-test golang base image (docker category is paused above)
-      "matchManagers": ["dockerfile"],
-      "matchPackageNames": ["golang"],
-      "matchFileNames": ["base-mender-go-test/Dockerfile"],
-      "enabled": true
-    },
-  ],
+  "packageRules": [],
 
   "customManagers": [
     {
