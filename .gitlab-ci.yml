@@ -148,9 +148,6 @@ build:aws-k8s-pipeline-toolbox:
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
     IMAGE_NAME: "aws-k8s-toolbox"
-    CI_KUBECTL_VERSION: "1.32.9"
-    CI_HELM_VERSION: "v3.18.6"
-    CI_KUBECONFORM_VERSION: "0.6.3"
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -164,9 +161,6 @@ build:aws-k8s-pipeline-toolbox:
         --cache-from ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:master
         -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
         -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
-        --build-arg KUBECTL_VERSION=${CI_KUBECTL_VERSION}
-        --build-arg HELM_VERSION=${CI_HELM_VERSION}
-        --build-arg KUBECONFORM_VERSION=${CI_KUBECONFORM_VERSION}
         -f aws-k8s-toolbox/Dockerfile
         --push
         aws-k8s-toolbox
