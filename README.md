@@ -19,6 +19,7 @@ container registry as separate image repositories under `$CI_REGISTRY_IMAGE`:
 | mender-client-acceptance-testing | mender-client-acceptance-testing | Ubuntu image with Yocto/build tools, Docker, and Python for client acceptance testing |
 | mender-dist-packages-builder | mender-dist-packages-building | Multi-architecture cross-compilation image for Mender package building |
 | mongodb-backup-runner | mongodb-backup-runner | Debian image with AWS CLI and Azure CLI for MongoDB backup operations |
+| mongosh-k8s-toolbox | mongosh-k8s-toolbox | Kubernetes and MongoDB toolbox with kubectl, mongosh, AWS CLI, and jq for staging cleanup (QA-1677) |
 | python-black | python-black | Alpine Python image for code formatting and linting |
 | release-please | release-please | Node.js image with release-please, GitHub CLI, and git-cliff for release management |
 | terragrunt-trivy-toolbox | terragrunt-trivy-toolbox | Terraform, Terragrunt, and Trivy for infrastructure deployment and security scanning |

@@ -197,6 +197,36 @@ build:aws-k8s-pipeline-toolbox:
         --push
         aws-k8s-toolbox
 
+build:mongosh-k8s-toolbox:
+  stage: build
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
+  needs: []
+  variables:
+    CONTAINER_TAG: "mongosh-k8s-v1"
+    IMAGE_NAME: "mongosh-k8s-toolbox"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - mongosh-k8s-toolbox/Dockerfile
+    - when: manual
+      allow_failure: true
+  services:
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
+      alias: docker
+  before_script:
+    - *requires-docker
+    - *dind-login
+  script:
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build
+        --cache-from ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:master
+        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
+        -f mongosh-k8s-toolbox/Dockerfile
+        --push
+        mongosh-k8s-toolbox
+
 .build:mender-dist-packages-image:
   tags:
     - k8s
@@ -518,6 +548,24 @@ publish:aws-k8s-pipeline-toolbox:
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
     IMAGE_NAME: "aws-k8s-toolbox"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
+  script:
+    - *tag_n_push_to_gitlab_registry
+
+publish:mongosh-k8s-toolbox:
+  extends: .template:publish
+  needs:
+    - job: build:mongosh-k8s-toolbox
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - mongosh-k8s-toolbox/Dockerfile
+    - when: manual
+      allow_failure: true
+  variables:
+    CONTAINER_TAG: "mongosh-k8s-v1"
+    IMAGE_NAME: "mongosh-k8s-toolbox"
     IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     - *tag_n_push_to_gitlab_registry
