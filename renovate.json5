@@ -7,7 +7,14 @@
   ],
   "reviewersFromCodeOwners": true,
 
-  "packageRules": [],
+  "packageRules": [
+    {
+      "matchFileNames": ["mender-client-acceptance-testing/Dockerfile"],
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ubuntu"],
+      "enabled": false
+    }
+  ],
 
   "customManagers": [
     {
@@ -48,6 +55,105 @@
         "ARG MONGOSH_VERSION=(?<currentValue>[\\d\\.]+)"
       ],
       "depNameTemplate": "mongodb-js/mongosh",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.gitlab-ci\\.yml/", "/gui-e2e-testing\/Dockerfile/"],
+      "matchStrings": [
+        "DOCKER_VERSION:[\\s\\S]*?value:\\s*[\"']?(?<currentValue>[\\d\\.]+)[\"']?",
+        "ARG DOCKER_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "docker",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/aws-k8s-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ARG KUBECTL_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "kubernetes/kubernetes",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/aws-k8s-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ARG HELM_VERSION=v(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "helm/helm",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/aws-k8s-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ARG HELM_UNITTEST_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "helm-unittest/helm-unittest",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/aws-k8s-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ARG KUBECONFORM_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "yannh/kubeconform",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/aws-k8s-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ARG PLUTO_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "FairwindsOps/pluto",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/aws-k8s-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ARG YQ_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "mikefarah/yq",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/aws-k8s-toolbox\/Dockerfile/", "/terragrunt-trivy-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "(?:ARG|ENV) TRIVY_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "aquasecurity/trivy",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/terragrunt-trivy-toolbox\/Dockerfile/"],
+      "matchStrings": [
+        "ENV TERRAGRUNT_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "gruntwork-io/terragrunt",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v?(?<version>.*)$",
       "versioningTemplate": "semver"
