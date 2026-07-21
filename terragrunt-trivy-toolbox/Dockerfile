@@ -4,7 +4,7 @@ LABEL REFRESHED_AT=20240613
 # to test terraform with trivy
 
 # Application list
-ENV TERRAGRUNT_VERSION=0.59.3
+ENV TERRAGRUNT_VERSION=0.99.5
 ENV TRIVY_VERSION=0.69.3
 
 # env
