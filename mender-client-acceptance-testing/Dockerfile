@@ -1,6 +1,8 @@
 # Pinned to 22.04 due to QA-1690
 FROM ubuntu:22.04
 
+ARG QEMU_VERSION="11.0.3"
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
@@ -18,6 +20,19 @@ RUN apt-get install -yyq wget && \
     mkdir -p /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null && \
     apt-get update -qq && apt-get install -yyq docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# QA-1690: qemu >= 8.2.1 breaks buffered writes to the emulated NOR flash,
+# turning the UBIFS data partition read-only on vexpress-qemu-flash. Build the
+# current release with a one-line fix (see the patch file) into /usr/local/bin.
+COPY qemu-pflash-count0-fix.patch /tmp/
+RUN apt-get install -yq ninja-build pkg-config libglib2.0-dev libpixman-1-dev \
+        libslirp-dev libfdt-dev python3-venv && \
+    wget -qO- https://download.qemu.org/qemu-${QEMU_VERSION}.tar.xz | tar xJ && \
+    cd qemu-${QEMU_VERSION} && \
+    patch -p1 --fuzz=0 < /tmp/qemu-pflash-count0-fix.patch && \
+    ./configure --target-list=arm-softmmu --enable-slirp --disable-docs --disable-tools && \
+    make -j$(nproc) && make install && \
+    cd .. && rm -rf qemu-${QEMU_VERSION}
 
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
