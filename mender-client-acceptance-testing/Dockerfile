@@ -1,5 +1,4 @@
-# Pinned to 22.04 due to QA-1690
-FROM ubuntu:22.04
+FROM ubuntu:26.04
 
 ARG QEMU_VERSION="11.0.3"
 
@@ -20,6 +19,10 @@ RUN apt-get install -yyq wget && \
     mkdir -p /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null && \
     apt-get update -qq && apt-get install -yyq docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Ubuntu 26.04 defaults to sudo-rs, which ignores 'sudo -E' (used by mender-qa
+# to preserve WORKSPACE etc. when dropping to the mender user). Use classic sudo.
+RUN update-alternatives --set sudo /usr/bin/sudo.ws
 
 # QA-1690: qemu >= 8.2.1 breaks buffered writes to the emulated NOR flash,
 # turning the UBIFS data partition read-only on vexpress-qemu-flash. Build the
