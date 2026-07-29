@@ -1,0 +1,23 @@
+qemu: pflash_cfi01: don't skip buffered-write start when word count is 0
+
+The CFI buffered-write count is N-1 encoded, so a count of 0 is a valid
+single-word write (Linux's Intel CFI driver emits it for single bus-word
+chunks). The "&& pfl->counter" gate never opens the update buffer for it,
+the write is rejected, and UBI on vexpress-qemu-flash switches to read-only
+mode.
+
+https://gitlab.com/qemu-project/qemu/-/issues/4111
+
+--- a/hw/block/pflash_cfi01.c
++++ b/hw/block/pflash_cfi01.c
+@@ -597,9 +597,9 @@
+     case 2:
+         switch (pfl->cmd) {
+         case 0xe8: /* Block write */
+             /* FIXME check @offset, @width */
+-            if (pfl->blk_offset == -1 && pfl->counter) {
++            if (pfl->blk_offset == -1) {
+                 pflash_blk_write_start(pfl, offset);
+             }
+             if (!pfl->ro && (pfl->blk_offset != -1)) {
+                 pflash_data_write(pfl, offset, value, width, be);
