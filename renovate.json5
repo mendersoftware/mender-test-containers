@@ -158,6 +158,17 @@
       "extractVersionTemplate": "^v?(?<version>.*)$",
       "versioningTemplate": "semver"
     },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/codecov\/Dockerfile/"],
+      "matchStrings": [
+        "ARG CODECOV_CLI_VERSION=(?<currentValue>[\\d\\.]+)"
+      ],
+      "depNameTemplate": "codecov/codecov-cli",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
   ],
 
   "prHourlyLimit": 0
