@@ -15,7 +15,6 @@ container registry as separate image repositories under `$CI_REGISTRY_IMAGE`:
 | aws-k8s-toolbox | aws-k8s-toolbox | Kubernetes and AWS toolbox with kubectl, Helm, kubeconform, eksctl, and yq |
 | codecov | codecov | Alpine image with the Codecov CLI for publishing coverage reports |
 | docker-multiplatform-buildx | docker-multiplatform-buildx | Docker image with git and regctl for multi-platform image management |
-| goveralls | goveralls | Go image with goveralls for code coverage reporting |
 | gui-e2e-testing | gui-e2e-testing | Playwright-based GUI end-to-end testing with mender-artifact and Docker CLI |
 | mender-client-acceptance-testing | mender-client-acceptance-testing | Ubuntu image with Yocto/build tools, Docker, and Python for client acceptance testing |
 | mender-dist-packages-builder | mender-dist-packages-building | Multi-architecture cross-compilation image for Mender package building |
