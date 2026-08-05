@@ -13,6 +13,7 @@ container registry as separate image repositories under `$CI_REGISTRY_IMAGE`:
 | base-ubuntu | base-ubuntu | Base Ubuntu image with common build tools and AWS CLI |
 | base-mender-cpp | base-mender-cpp | Debian-based C/C++ development environment for Mender projects |
 | aws-k8s-toolbox | aws-k8s-toolbox | Kubernetes and AWS toolbox with kubectl, Helm, kubeconform, eksctl, and yq |
+| codecov | codecov | Alpine image with the Codecov CLI for publishing coverage reports |
 | docker-multiplatform-buildx | docker-multiplatform-buildx | Docker image with git and regctl for multi-platform image management |
 | goveralls | goveralls | Go image with goveralls for code coverage reporting |
 | gui-e2e-testing | gui-e2e-testing | Playwright-based GUI end-to-end testing with mender-artifact and Docker CLI |

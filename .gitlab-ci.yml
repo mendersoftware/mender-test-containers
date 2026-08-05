@@ -473,6 +473,18 @@ build:base-mender-go-test:
     - when: manual
       allow_failure: true
 
+build:codecov:
+  extends: .build:base-image
+  variables:
+    CONTAINER_TAG: "codecov"
+    IMAGE_NAME: "codecov"
+    BASE_IMAGE_DIR: "codecov"
+  rules:
+    - changes:
+        - codecov/Dockerfile
+    - when: manual
+      allow_failure: true
+
 .template:publish:
   stage: publish
   services:

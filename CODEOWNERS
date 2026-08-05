@@ -36,3 +36,6 @@
 
 # Goveralls
 /goveralls/ @mendersoftware/qa-dependabot-reviewers
+
+# Codecov
+/codecov/ @mendersoftware/qa-dependabot-reviewers
