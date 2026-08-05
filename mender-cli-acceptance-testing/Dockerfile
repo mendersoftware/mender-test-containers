@@ -1,5 +1,5 @@
 # Base matches the acceptance job's current image (docker CLI + dind entrypoint)
-FROM docker:27-dind
+FROM docker:29-dind
 
 LABEL REFRESHED_AT=20260630
 
