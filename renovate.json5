@@ -2,9 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":gitSignOff",
-    ":rebaseStalePrs"
+    ":gitSignOff"
   ],
+
+  // Only rebase open PRs when they actually conflict. Rebasing every time the
+  // base branch moves restarts a pipeline for every open PR on each merge.
+  "rebaseWhen": "conflicted",
   "reviewersFromCodeOwners": true,
 
   "packageRules": [
