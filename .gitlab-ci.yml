@@ -212,6 +212,7 @@ build:mongosh-k8s-toolbox:
     - CONTAINER_TAG=mender-dist-packages-builder-${BUILD}-${DISTRO}-${RELEASE}-${ARCH}
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - if [ "${ARCH}" != "amd64" ]; then docker run --rm --privileged tonistiigi/binfmt --install all; fi
     - cd mender-dist-packages-building
     - ./build.sh
          --container-tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}
