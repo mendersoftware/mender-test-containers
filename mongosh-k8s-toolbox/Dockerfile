@@ -3,7 +3,7 @@ LABEL REFRESHED_AT=20260717
 # image used inside Gitlab CICD Pipelines and by the staging-db-cleanup k8s cronjob
 
 # Application list
-ARG KUBECTL_VERSION=1.36.3
+ARG KUBECTL_VERSION=1.36.4
 ARG MONGOSH_VERSION=2.9.2
 
 # env
