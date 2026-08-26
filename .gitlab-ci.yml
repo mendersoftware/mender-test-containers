@@ -173,7 +173,7 @@ build:mongosh-k8s-toolbox:
     CONTAINER_TAG: "mongosh-k8s-v1"
     IMAGE_NAME: "mongosh-k8s-toolbox"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mongosh-k8s-toolbox/Dockerfile
     - when: manual
@@ -227,7 +227,7 @@ build:mongosh-k8s-toolbox:
 
 build:mender-dist-packages-image:
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   extends: .build:mender-dist-packages-image
 
 build:mender-dist-packages-image:manual:
@@ -377,7 +377,7 @@ build:base-debian:
     IMAGE_NAME: "base-debian"
     BASE_IMAGE_DIR: "base-debian"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-debian/Dockerfile
     - when: manual
@@ -390,7 +390,7 @@ build:base-ubuntu:
     IMAGE_NAME: "base-ubuntu"
     BASE_IMAGE_DIR: "base-ubuntu"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-ubuntu/Dockerfile
     - when: manual
@@ -403,7 +403,7 @@ build:base-alpine:
     IMAGE_NAME: "base-alpine"
     BASE_IMAGE_DIR: "base-alpine"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-alpine/Dockerfile
     - when: manual
@@ -417,7 +417,7 @@ build:base-mender-cpp:
     BASE_IMAGE_DIR: "base-mender-cpp"
     PLATFORMS: "linux/amd64"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - when: manual
       allow_failure: true
 
@@ -429,7 +429,7 @@ build:mender-base-ubuntu:
     BASE_IMAGE_DIR: "mender-base-ubuntu"
     PLATFORMS: "linux/amd64"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - when: manual
       allow_failure: true
 
@@ -440,7 +440,7 @@ build:python-black:
     IMAGE_NAME: "python-black"
     BASE_IMAGE_DIR: "python-black"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - python-black/Dockerfile
         - python-black/requirements_py3.txt
@@ -455,7 +455,7 @@ build:mender-cli-acceptance-testing:
     BASE_IMAGE_DIR: "mender-cli-acceptance-testing"
     PLATFORMS: "linux/amd64"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mender-cli-acceptance-testing/Dockerfile
     - when: manual
@@ -468,7 +468,7 @@ build:base-mender-go-test:
     IMAGE_NAME: "base-mender-go-test"
     BASE_IMAGE_DIR: "base-mender-go-test"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-mender-go-test/Dockerfile
     - when: manual
@@ -492,7 +492,7 @@ build:codecov:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   before_script:
     - *requires-docker
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -539,7 +539,7 @@ publish:mongosh-k8s-toolbox:
     - job: build:mongosh-k8s-toolbox
       artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mongosh-k8s-toolbox/Dockerfile
     - when: manual
@@ -574,7 +574,7 @@ publish:mender-dist-packages-image:
     # needs to pass, so it should be safe).
     - "build:mender-dist-packages-image: [crosscompile, debian, trixie, amd64]"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - CONTAINER_TAG=mender-dist-packages-builder-${BUILD}-${DISTRO}-${RELEASE}-${ARCH}
     - IMAGE_NAME=mender-dist-packages-builder
