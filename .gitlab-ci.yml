@@ -49,7 +49,12 @@ include:
     inputs:
       stage: ".pre"
 
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+
 default:
+  interruptible: true
   tags: !reference [.qa-common-default-runner, tags]
   retry: !reference [.qa-common-default-retry, retry]
 
@@ -70,7 +75,14 @@ default:
   - fi
 
 .dind-login: &dind-login
-  - mkdir -p $HOME/.docker && echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
+  - mkdir -p "$HOME/.docker"
+  - (umask 077; printf '%s' "$DOCKER_AUTH_CONFIG" > "$HOME/.docker/config.json")
+
+.rules:
+  default:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
 
 stages:
   - build
@@ -80,6 +92,13 @@ stages:
 build:gui-e2e-testing:
   stage: build
   needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - gui-e2e-testing/**/*
+    - when: manual
+      allow_failure: true
   variables:
     CONTAINER_TAG: "gui-e2e-testing"
     IMAGE_NAME: "gui-e2e-testing"
@@ -88,8 +107,6 @@ build:gui-e2e-testing:
       alias: docker
   before_script:
     - *requires-docker
-    - apk add --no-cache aws-cli curl
-    - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
     - *dind-login
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
@@ -101,19 +118,20 @@ build:gui-e2e-testing:
         -f gui-e2e-testing/Dockerfile
         --push
         gui-e2e-testing
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > guiE2eTestingImage.tar
-    # Upload to temporary S3 bucket left for backwards compatibility
-    - mender_ci_save_tmp_artifact guiE2eTestingImage.tar
-  artifacts:
-    paths:
-      - checksums
 
 build:mender-client-acceptance-testing:
   tags:
-    # KVM support requires the same type of GCP machine as the tests will use
-    - mender-qa-worker-client-acceptance-tests
+    # Building the image needs nested virtualization to compile and check qemu
+    - k8s-qemu
   stage: build
   needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mender-client-acceptance-testing/**/*
+    - when: manual
+      allow_failure: true
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
     IMAGE_NAME: "mender-client-acceptance-testing"
@@ -122,8 +140,6 @@ build:mender-client-acceptance-testing:
       alias: docker
   before_script:
     - *requires-docker
-    - apk add --no-cache aws-cli curl
-    - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -134,17 +150,18 @@ build:mender-client-acceptance-testing:
         -f mender-client-acceptance-testing/Dockerfile
         --push
         mender-client-acceptance-testing
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > qaTestingImage.tar
-    # Upload to temporary S3 bucket
-    - mender_ci_save_tmp_artifact qaTestingImage.tar
-  artifacts:
-    paths:
-      - checksums
 
 build:aws-k8s-pipeline-toolbox:
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - aws-k8s-toolbox/**/*
+    - when: manual
+      allow_failure: true
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
     IMAGE_NAME: "aws-k8s-toolbox"
@@ -173,9 +190,10 @@ build:mongosh-k8s-toolbox:
     CONTAINER_TAG: "mongosh-k8s-v1"
     IMAGE_NAME: "mongosh-k8s-toolbox"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - mongosh-k8s-toolbox/Dockerfile
+        - mongosh-k8s-toolbox/**/*
     - when: manual
       allow_failure: true
   services:
@@ -227,7 +245,10 @@ build:mongosh-k8s-toolbox:
 
 build:mender-dist-packages-image:
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mender-dist-packages-building/**/*
   extends: .build:mender-dist-packages-image
 
 build:mender-dist-packages-image:manual:
@@ -238,6 +259,13 @@ build:docker-multiplatform-buildx:
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - docker-multiplatform-buildx/**/*
+    - when: manual
+      allow_failure: true
   variables:
     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
     IMAGE_NAME: "docker-multiplatform-buildx"
@@ -262,6 +290,13 @@ build:mongodb-backup-runner:
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mongodb-backup-runner/**/*
+    - when: manual
+      allow_failure: true
   variables:
     CONTAINER_TAG: "mongodb-backup-runner"
     IMAGE_NAME: "mongodb-backup-runner"
@@ -286,6 +321,13 @@ build:terragrunt-trivy-toolbox:
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - terragrunt-trivy-toolbox/**/*
+    - when: manual
+      allow_failure: true
   variables:
     CONTAINER_TAG: "terragrunt-trivy-v1"
     IMAGE_NAME: "terragrunt-trivy-toolbox"
@@ -310,6 +352,13 @@ build:release-please:
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - release-please/**/*
+    - when: manual
+      allow_failure: true
   variables:
     CONTAINER_TAG: "release-please-v1"
     IMAGE_NAME: "release-please"
@@ -355,17 +404,20 @@ build:release-please:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker context create builder
     - docker buildx create builder --use --driver-opt network=host --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
+    - BRANCH_TAGS=""
+    - if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+    -   BRANCH_TAGS="--tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH} --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_COMMIT_BRANCH}"
+    - fi
   script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} and ${CONTAINER_TAG}-${CI_COMMIT_BRANCH} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - cd ${BASE_IMAGE_DIR}
     - docker buildx build
         --platform ${PLATFORMS}
         --cache-to type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache,mode=max
         --cache-from type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache
         --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
         --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
-        --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_COMMIT_BRANCH}
+        ${BRANCH_TAGS}
         --provenance false
         --push
         .
@@ -377,9 +429,10 @@ build:base-debian:
     IMAGE_NAME: "base-debian"
     BASE_IMAGE_DIR: "base-debian"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - base-debian/Dockerfile
+        - base-debian/**/*
     - when: manual
       allow_failure: true
 
@@ -390,9 +443,10 @@ build:base-ubuntu:
     IMAGE_NAME: "base-ubuntu"
     BASE_IMAGE_DIR: "base-ubuntu"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - base-ubuntu/Dockerfile
+        - base-ubuntu/**/*
     - when: manual
       allow_failure: true
 
@@ -403,9 +457,10 @@ build:base-alpine:
     IMAGE_NAME: "base-alpine"
     BASE_IMAGE_DIR: "base-alpine"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - base-alpine/Dockerfile
+        - base-alpine/**/*
     - when: manual
       allow_failure: true
 
@@ -417,7 +472,10 @@ build:base-mender-cpp:
     BASE_IMAGE_DIR: "base-mender-cpp"
     PLATFORMS: "linux/amd64"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - base-mender-cpp/**/*
     - when: manual
       allow_failure: true
 
@@ -429,7 +487,10 @@ build:mender-base-ubuntu:
     BASE_IMAGE_DIR: "mender-base-ubuntu"
     PLATFORMS: "linux/amd64"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mender-base-ubuntu/**/*
     - when: manual
       allow_failure: true
 
@@ -440,10 +501,10 @@ build:python-black:
     IMAGE_NAME: "python-black"
     BASE_IMAGE_DIR: "python-black"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - python-black/Dockerfile
-        - python-black/requirements_py3.txt
+        - python-black/**/*
     - when: manual
       allow_failure: true
 
@@ -455,9 +516,10 @@ build:mender-cli-acceptance-testing:
     BASE_IMAGE_DIR: "mender-cli-acceptance-testing"
     PLATFORMS: "linux/amd64"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - mender-cli-acceptance-testing/Dockerfile
+        - mender-cli-acceptance-testing/**/*
     - when: manual
       allow_failure: true
 
@@ -468,9 +530,10 @@ build:base-mender-go-test:
     IMAGE_NAME: "base-mender-go-test"
     BASE_IMAGE_DIR: "base-mender-go-test"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - base-mender-go-test/Dockerfile
+        - base-mender-go-test/**/*
     - when: manual
       allow_failure: true
 
@@ -481,27 +544,34 @@ build:codecov:
     IMAGE_NAME: "codecov"
     BASE_IMAGE_DIR: "codecov"
   rules:
+    - !reference [.rules, default]
     - changes:
-        - codecov/Dockerfile
+        - codecov/**/*
     - when: manual
       allow_failure: true
 
 .template:publish:
   stage: publish
+  interruptible: false
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   before_script:
     - *requires-docker
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
 
 publish:gui-e2e-testing:
   extends: .template:publish
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - gui-e2e-testing/**/*
   needs:
     - job: build:gui-e2e-testing
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "gui-e2e-testing"
     IMAGE_NAME: "gui-e2e-testing"
@@ -511,9 +581,14 @@ publish:gui-e2e-testing:
 
 publish:mender-client-acceptance-testing:
   extends: .template:publish
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mender-client-acceptance-testing/**/*
   needs:
     - job: build:mender-client-acceptance-testing
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
     IMAGE_NAME: "mender-client-acceptance-testing"
@@ -523,9 +598,14 @@ publish:mender-client-acceptance-testing:
 
 publish:aws-k8s-pipeline-toolbox:
   extends: .template:publish
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - aws-k8s-toolbox/**/*
   needs:
     - job: build:aws-k8s-pipeline-toolbox
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
     IMAGE_NAME: "aws-k8s-toolbox"
@@ -537,11 +617,12 @@ publish:mongosh-k8s-toolbox:
   extends: .template:publish
   needs:
     - job: build:mongosh-k8s-toolbox
-      artifacts: true
+      artifacts: false
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - mongosh-k8s-toolbox/Dockerfile
+        - mongosh-k8s-toolbox/**/*
     - when: manual
       allow_failure: true
   variables:
@@ -553,9 +634,14 @@ publish:mongosh-k8s-toolbox:
 
 publish:docker-multiplatform-buildx:
   extends: .template:publish
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - docker-multiplatform-buildx/**/*
   needs:
     - job: build:docker-multiplatform-buildx
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
     IMAGE_NAME: "docker-multiplatform-buildx"
@@ -574,7 +660,10 @@ publish:mender-dist-packages-image:
     # needs to pass, so it should be safe).
     - "build:mender-dist-packages-image: [crosscompile, debian, trixie, amd64]"
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mender-dist-packages-building/**/*
   script:
     - CONTAINER_TAG=mender-dist-packages-builder-${BUILD}-${DISTRO}-${RELEASE}-${ARCH}
     - IMAGE_NAME=mender-dist-packages-builder
@@ -584,9 +673,14 @@ publish:mender-dist-packages-image:
 
 publish:mongodb-backup-runner:
   extends: .template:publish
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mongodb-backup-runner/**/*
   needs:
     - job: build:mongodb-backup-runner
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "mongodb-backup-runner"
     IMAGE_NAME: "mongodb-backup-runner"
@@ -596,9 +690,14 @@ publish:mongodb-backup-runner:
 
 publish:terragrunt-trivy-toolbox:
   extends: .template:publish
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - terragrunt-trivy-toolbox/**/*
   needs:
-    - job: build:aws-k8s-pipeline-toolbox
-      artifacts: true
+    - job: build:terragrunt-trivy-toolbox
+      artifacts: false
   variables:
     CONTAINER_TAG: "terragrunt-trivy-v1"
     IMAGE_NAME: "terragrunt-trivy-toolbox"
@@ -608,9 +707,14 @@ publish:terragrunt-trivy-toolbox:
 
 publish:release-please:
   extends: .template:publish
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - release-please/**/*
   needs:
     - job: build:release-please
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "release-please-v1"
     IMAGE_NAME: "release-please"

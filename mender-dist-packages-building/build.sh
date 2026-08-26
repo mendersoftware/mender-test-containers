@@ -45,7 +45,6 @@ fi
 
 if [ "$DISTRO" = "debian" -o "$DISTRO" = "ubuntu" ]; then
     docker build \
-        --cache-from ${CONTAINER_TAG}-master \
         --tag ${CONTAINER_TAG}-${CI_PIPELINE_ID} \
         --build-arg DISTRO \
         --build-arg RELEASE \
