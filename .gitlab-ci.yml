@@ -70,7 +70,8 @@ default:
   - fi
 
 .dind-login: &dind-login
-  - mkdir -p $HOME/.docker && echo $DOCKER_AUTH_CONFIG > $HOME/.docker/config.json
+  - mkdir -p "$HOME/.docker"
+  - (umask 077; printf '%s' "$DOCKER_AUTH_CONFIG" > "$HOME/.docker/config.json")
 
 stages:
   - build
