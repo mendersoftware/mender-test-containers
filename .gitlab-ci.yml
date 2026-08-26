@@ -234,6 +234,9 @@ build:mongosh-k8s-toolbox:
 build:mender-dist-packages-image:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mender-dist-packages-building/**/*
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   extends: .build:mender-dist-packages-image
 
 build:mender-dist-packages-image:manual:
@@ -582,6 +585,9 @@ publish:mender-dist-packages-image:
     - "build:mender-dist-packages-image: [crosscompile, debian, trixie, amd64]"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mender-dist-packages-building/**/*
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   script:
     - CONTAINER_TAG=mender-dist-packages-builder-${BUILD}-${DISTRO}-${RELEASE}-${ARCH}
     - IMAGE_NAME=mender-dist-packages-builder
