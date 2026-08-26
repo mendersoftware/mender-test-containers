@@ -364,17 +364,20 @@ build:release-please:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker context create builder
     - docker buildx create builder --use --driver-opt network=host --buildkitd-flags '--debug --allow-insecure-entitlement network.host'
+    - BRANCH_TAGS=""
+    - if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+    -   BRANCH_TAGS="--tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH} --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_COMMIT_BRANCH}"
+    - fi
   script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} and ${CONTAINER_TAG}-${CI_COMMIT_BRANCH} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - cd ${BASE_IMAGE_DIR}
     - docker buildx build
         --platform ${PLATFORMS}
         --cache-to type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache,mode=max
         --cache-from type=registry,ref=${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}_ci_cache
         --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
-        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
         --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
-        --tag ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_COMMIT_BRANCH}
+        ${BRANCH_TAGS}
         --provenance false
         --push
         .
