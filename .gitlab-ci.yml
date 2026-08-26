@@ -103,8 +103,6 @@ build:gui-e2e-testing:
       alias: docker
   before_script:
     - *requires-docker
-    - apk add --no-cache aws-cli curl
-    - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
     - *dind-login
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
@@ -116,12 +114,6 @@ build:gui-e2e-testing:
         -f gui-e2e-testing/Dockerfile
         --push
         gui-e2e-testing
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > guiE2eTestingImage.tar
-    # Upload to temporary S3 bucket left for backwards compatibility
-    - mender_ci_save_tmp_artifact guiE2eTestingImage.tar
-  artifacts:
-    paths:
-      - checksums
 
 build:mender-client-acceptance-testing:
   tags:
@@ -146,8 +138,6 @@ build:mender-client-acceptance-testing:
       alias: docker
   before_script:
     - *requires-docker
-    - apk add --no-cache aws-cli curl
-    - eval "$(curl https://raw.githubusercontent.com/mendersoftware/mendertesting/master/mender-ci-common.sh)"
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
@@ -158,12 +148,6 @@ build:mender-client-acceptance-testing:
         -f mender-client-acceptance-testing/Dockerfile
         --push
         mender-client-acceptance-testing
-    - docker save ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} > qaTestingImage.tar
-    # Upload to temporary S3 bucket
-    - mender_ci_save_tmp_artifact qaTestingImage.tar
-  artifacts:
-    paths:
-      - checksums
 
 build:aws-k8s-pipeline-toolbox:
   stage: build
@@ -619,7 +603,7 @@ publish:gui-e2e-testing:
         - gui-e2e-testing/**/*
   needs:
     - job: build:gui-e2e-testing
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "gui-e2e-testing"
     IMAGE_NAME: "gui-e2e-testing"
@@ -638,7 +622,7 @@ publish:mender-client-acceptance-testing:
         - mender-client-acceptance-testing/**/*
   needs:
     - job: build:mender-client-acceptance-testing
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "mender-client-acceptance-testing"
     IMAGE_NAME: "mender-client-acceptance-testing"
