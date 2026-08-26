@@ -87,10 +87,12 @@ build:gui-e2e-testing:
   stage: build
   needs: []
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - gui-e2e-testing/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
   variables:
@@ -128,10 +130,12 @@ build:mender-client-acceptance-testing:
   stage: build
   needs: []
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mender-client-acceptance-testing/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
   variables:
@@ -166,10 +170,12 @@ build:aws-k8s-pipeline-toolbox:
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - aws-k8s-toolbox/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
   variables:
@@ -200,6 +206,9 @@ build:mongosh-k8s-toolbox:
     CONTAINER_TAG: "mongosh-k8s-v1"
     IMAGE_NAME: "mongosh-k8s-toolbox"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mongosh-k8s-toolbox/**/*
@@ -254,10 +263,12 @@ build:mongosh-k8s-toolbox:
 
 build:mender-dist-packages-image:
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mender-dist-packages-building/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   extends: .build:mender-dist-packages-image
 
 build:mender-dist-packages-image:manual:
@@ -269,10 +280,12 @@ build:docker-multiplatform-buildx:
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - docker-multiplatform-buildx/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
   variables:
@@ -300,10 +313,12 @@ build:mongodb-backup-runner:
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker
   needs: []
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mongodb-backup-runner/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
   variables:
@@ -331,10 +346,12 @@ build:terragrunt-trivy-toolbox:
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - terragrunt-trivy-toolbox/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
   variables:
@@ -362,10 +379,12 @@ build:release-please:
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
   needs: []
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - release-please/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
   variables:
@@ -438,6 +457,9 @@ build:base-debian:
     IMAGE_NAME: "base-debian"
     BASE_IMAGE_DIR: "base-debian"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-debian/**/*
@@ -451,6 +473,9 @@ build:base-ubuntu:
     IMAGE_NAME: "base-ubuntu"
     BASE_IMAGE_DIR: "base-ubuntu"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-ubuntu/**/*
@@ -464,6 +489,9 @@ build:base-alpine:
     IMAGE_NAME: "base-alpine"
     BASE_IMAGE_DIR: "base-alpine"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-alpine/**/*
@@ -478,10 +506,12 @@ build:base-mender-cpp:
     BASE_IMAGE_DIR: "base-mender-cpp"
     PLATFORMS: "linux/amd64"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-mender-cpp/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
 
@@ -493,10 +523,12 @@ build:mender-base-ubuntu:
     BASE_IMAGE_DIR: "mender-base-ubuntu"
     PLATFORMS: "linux/amd64"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mender-base-ubuntu/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
 
@@ -507,6 +539,9 @@ build:python-black:
     IMAGE_NAME: "python-black"
     BASE_IMAGE_DIR: "python-black"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - python-black/**/*
@@ -521,6 +556,9 @@ build:mender-cli-acceptance-testing:
     BASE_IMAGE_DIR: "mender-cli-acceptance-testing"
     PLATFORMS: "linux/amd64"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mender-cli-acceptance-testing/**/*
@@ -534,6 +572,9 @@ build:base-mender-go-test:
     IMAGE_NAME: "base-mender-go-test"
     BASE_IMAGE_DIR: "base-mender-go-test"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - base-mender-go-test/**/*
@@ -547,6 +588,9 @@ build:codecov:
     IMAGE_NAME: "codecov"
     BASE_IMAGE_DIR: "codecov"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - changes:
         - codecov/**/*
     - when: manual
@@ -567,10 +611,12 @@ build:codecov:
 publish:gui-e2e-testing:
   extends: .template:publish
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - gui-e2e-testing/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   needs:
     - job: build:gui-e2e-testing
       artifacts: true
@@ -584,10 +630,12 @@ publish:gui-e2e-testing:
 publish:mender-client-acceptance-testing:
   extends: .template:publish
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mender-client-acceptance-testing/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   needs:
     - job: build:mender-client-acceptance-testing
       artifacts: true
@@ -601,10 +649,12 @@ publish:mender-client-acceptance-testing:
 publish:aws-k8s-pipeline-toolbox:
   extends: .template:publish
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - aws-k8s-toolbox/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   needs:
     - job: build:aws-k8s-pipeline-toolbox
       artifacts: false
@@ -621,6 +671,9 @@ publish:mongosh-k8s-toolbox:
     - job: build:mongosh-k8s-toolbox
       artifacts: false
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mongosh-k8s-toolbox/**/*
@@ -636,10 +689,12 @@ publish:mongosh-k8s-toolbox:
 publish:docker-multiplatform-buildx:
   extends: .template:publish
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - docker-multiplatform-buildx/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   needs:
     - job: build:docker-multiplatform-buildx
       artifacts: false
@@ -661,10 +716,12 @@ publish:mender-dist-packages-image:
     # needs to pass, so it should be safe).
     - "build:mender-dist-packages-image: [crosscompile, debian, trixie, amd64]"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mender-dist-packages-building/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   script:
     - CONTAINER_TAG=mender-dist-packages-builder-${BUILD}-${DISTRO}-${RELEASE}-${ARCH}
     - IMAGE_NAME=mender-dist-packages-builder
@@ -675,10 +732,12 @@ publish:mender-dist-packages-image:
 publish:mongodb-backup-runner:
   extends: .template:publish
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mongodb-backup-runner/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   needs:
     - job: build:mongodb-backup-runner
       artifacts: false
@@ -692,10 +751,12 @@ publish:mongodb-backup-runner:
 publish:terragrunt-trivy-toolbox:
   extends: .template:publish
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - terragrunt-trivy-toolbox/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   needs:
     - job: build:terragrunt-trivy-toolbox
       artifacts: false
@@ -709,10 +770,12 @@ publish:terragrunt-trivy-toolbox:
 publish:release-please:
   extends: .template:publish
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - release-please/**/*
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
   needs:
     - job: build:release-please
       artifacts: false
