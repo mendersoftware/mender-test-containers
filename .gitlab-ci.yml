@@ -49,7 +49,12 @@ include:
     inputs:
       stage: ".pre"
 
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+
 default:
+  interruptible: true
   tags: !reference [.qa-common-default-runner, tags]
   retry: !reference [.qa-common-default-retry, retry]
 
@@ -489,6 +494,7 @@ build:codecov:
 
 .template:publish:
   stage: publish
+  interruptible: false
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
