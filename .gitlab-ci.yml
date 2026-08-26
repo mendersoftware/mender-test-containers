@@ -623,8 +623,6 @@ publish:mongosh-k8s-toolbox:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - mongosh-k8s-toolbox/**/*
-    - when: manual
-      allow_failure: true
   variables:
     CONTAINER_TAG: "mongosh-k8s-v1"
     IMAGE_NAME: "mongosh-k8s-toolbox"
