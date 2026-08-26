@@ -181,7 +181,7 @@ build:mongosh-k8s-toolbox:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - mongosh-k8s-toolbox/Dockerfile
+        - mongosh-k8s-toolbox/**/*
     - when: manual
       allow_failure: true
   services:
@@ -388,7 +388,7 @@ build:base-debian:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - base-debian/Dockerfile
+        - base-debian/**/*
     - when: manual
       allow_failure: true
 
@@ -401,7 +401,7 @@ build:base-ubuntu:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - base-ubuntu/Dockerfile
+        - base-ubuntu/**/*
     - when: manual
       allow_failure: true
 
@@ -414,7 +414,7 @@ build:base-alpine:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - base-alpine/Dockerfile
+        - base-alpine/**/*
     - when: manual
       allow_failure: true
 
@@ -427,6 +427,9 @@ build:base-mender-cpp:
     PLATFORMS: "linux/amd64"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - base-mender-cpp/**/*
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
 
@@ -439,6 +442,9 @@ build:mender-base-ubuntu:
     PLATFORMS: "linux/amd64"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - mender-base-ubuntu/**/*
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $REBUILD_ALL == "true"
     - when: manual
       allow_failure: true
 
@@ -451,8 +457,7 @@ build:python-black:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - python-black/Dockerfile
-        - python-black/requirements_py3.txt
+        - python-black/**/*
     - when: manual
       allow_failure: true
 
@@ -466,7 +471,7 @@ build:mender-cli-acceptance-testing:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - mender-cli-acceptance-testing/Dockerfile
+        - mender-cli-acceptance-testing/**/*
     - when: manual
       allow_failure: true
 
@@ -479,7 +484,7 @@ build:base-mender-go-test:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - base-mender-go-test/Dockerfile
+        - base-mender-go-test/**/*
     - when: manual
       allow_failure: true
 
@@ -491,7 +496,7 @@ build:codecov:
     BASE_IMAGE_DIR: "codecov"
   rules:
     - changes:
-        - codecov/Dockerfile
+        - codecov/**/*
     - when: manual
       allow_failure: true
 
@@ -551,7 +556,7 @@ publish:mongosh-k8s-toolbox:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - mongosh-k8s-toolbox/Dockerfile
+        - mongosh-k8s-toolbox/**/*
     - when: manual
       allow_failure: true
   variables:
