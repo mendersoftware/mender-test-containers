@@ -525,7 +525,7 @@ publish:aws-k8s-pipeline-toolbox:
   extends: .template:publish
   needs:
     - job: build:aws-k8s-pipeline-toolbox
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "aws-k8s-v1"
     IMAGE_NAME: "aws-k8s-toolbox"
@@ -537,7 +537,7 @@ publish:mongosh-k8s-toolbox:
   extends: .template:publish
   needs:
     - job: build:mongosh-k8s-toolbox
-      artifacts: true
+      artifacts: false
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
       changes:
@@ -555,7 +555,7 @@ publish:docker-multiplatform-buildx:
   extends: .template:publish
   needs:
     - job: build:docker-multiplatform-buildx
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "docker-multiplatform-buildx-v1"
     IMAGE_NAME: "docker-multiplatform-buildx"
@@ -586,7 +586,7 @@ publish:mongodb-backup-runner:
   extends: .template:publish
   needs:
     - job: build:mongodb-backup-runner
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "mongodb-backup-runner"
     IMAGE_NAME: "mongodb-backup-runner"
@@ -597,8 +597,8 @@ publish:mongodb-backup-runner:
 publish:terragrunt-trivy-toolbox:
   extends: .template:publish
   needs:
-    - job: build:aws-k8s-pipeline-toolbox
-      artifacts: true
+    - job: build:terragrunt-trivy-toolbox
+      artifacts: false
   variables:
     CONTAINER_TAG: "terragrunt-trivy-v1"
     IMAGE_NAME: "terragrunt-trivy-toolbox"
@@ -610,7 +610,7 @@ publish:release-please:
   extends: .template:publish
   needs:
     - job: build:release-please
-      artifacts: true
+      artifacts: false
   variables:
     CONTAINER_TAG: "release-please-v1"
     IMAGE_NAME: "release-please"
