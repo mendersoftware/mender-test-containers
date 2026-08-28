@@ -3,7 +3,7 @@ image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:git
 variables:
   DOCKER_BUILDKIT: 1
   DOCKER_VERSION:
-    value: "29.1"
+    value: "29.7"
     description: "Version of docker to use in pipelines"
   DOCKER_HOST:
     value: 'tcp://docker:2376'
