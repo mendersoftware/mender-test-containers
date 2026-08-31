@@ -1,4 +1,4 @@
-FROM golang:1.26
+FROM golang:1.27
 
 LABEL REFRESHED_AT=20260702
 
