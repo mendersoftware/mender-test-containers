@@ -1,5 +1,5 @@
 ARG DISTRO=debian
-ARG RELEASE=bookworm
+ARG RELEASE=trixie
 FROM $DISTRO:$RELEASE
 
 COPY requirements.txt .
