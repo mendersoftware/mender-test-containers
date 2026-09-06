@@ -1,4 +1,4 @@
-FROM debian:bookworm
+FROM debian:trixie
 LABEL REFRESHED_AT=20260118
 # image used inside Gitlab CICD Pipelines
 # specifically, sre-tools mongodb backup pipelines
