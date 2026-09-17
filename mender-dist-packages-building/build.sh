@@ -49,6 +49,7 @@ if [ "$DISTRO" = "debian" -o "$DISTRO" = "ubuntu" ]; then
         --build-arg DISTRO \
         --build-arg RELEASE \
         --build-arg ARCH \
+        --provenance=false \
         --push \
         .
 
