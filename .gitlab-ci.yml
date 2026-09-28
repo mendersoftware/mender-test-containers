@@ -235,9 +235,7 @@ build:mongosh-k8s-toolbox:
          --release ${RELEASE}
          --arch ${ARCH}
          --ci-pipeline-id ${CI_PIPELINE_ID}
-    # New naming scheme (separate image repository)
-    - docker tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID} ${CI_REGISTRY_IMAGE}/mender-dist-packages-builder:${BUILD}-${DISTRO}-${RELEASE}-${ARCH}-${CI_PIPELINE_ID}
-    - docker push ${CI_REGISTRY_IMAGE}/mender-dist-packages-builder:${BUILD}-${DISTRO}-${RELEASE}-${ARCH}-${CI_PIPELINE_ID}
+         --extra-tag ${CI_REGISTRY_IMAGE}/mender-dist-packages-builder:${BUILD}-${DISTRO}-${RELEASE}-${ARCH}-${CI_PIPELINE_ID}
   parallel: !reference [.mender-dist-packages-image-matrix, parallel]
 
 build:mender-dist-packages-image:
