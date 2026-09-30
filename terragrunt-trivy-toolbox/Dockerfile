@@ -1,7 +1,8 @@
 FROM debian:13-slim
-LABEL REFRESHED_AT=20240613
+LABEL REFRESHED_AT=20260928
 # image used inside Gitlab CICD Pipelines
-# to test terraform with trivy
+# to test terraform with trivy, and to check that the saas DR env
+# (terragrunt/prod-us-dr) is in sync with prod (needs python3 and rsync)
 
 # Application list
 ENV TERRAGRUNT_VERSION=1.1.6
@@ -20,6 +21,8 @@ RUN apt-get update && apt-get install -y \
   unzip \
   gnupg \
   make \
+  python3 \
+  rsync \
   apt-transport-https \
   lsb-release \
   && rm -rf /var/lib/apt/lists/*
