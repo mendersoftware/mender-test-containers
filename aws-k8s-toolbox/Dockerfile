@@ -30,7 +30,13 @@ RUN apt-get update && \
        make \
        uuid-runtime \
        dnsutils \
+       gettext-base \
     && rm -rf /var/lib/apt/lists/*
+
+# python dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt \
+    && rm /tmp/requirements.txt
 
 # workdir
 RUN useradd -ms /bin/bash ${USER} -d /opt/${USER}
