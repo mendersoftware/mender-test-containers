@@ -1,4 +1,4 @@
-FROM alpine:3.24.1 AS mender-artifact-get
+FROM alpine:3.24.2 AS mender-artifact-get
 ARG TARGETARCH
 ARG MENDER_ARTIFACT_VERSION=4.4.1-1+ubuntu+noble
 RUN apk --no-cache add dpkg zstd
