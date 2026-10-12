@@ -6,6 +6,7 @@ LABEL REFRESHED_AT=20260118
 ARG KUBECTL_VERSION=1.37.1
 ARG HELM_VERSION=v4.3.0
 ARG HELM_UNITTEST_VERSION=1.2.1
+ARG HELM_UNITTEST_SIGNER_FPR=853008CD0B0A5A2DA04FF8A5616AD47F65B54AC7
 ARG KUBECONFORM_VERSION=0.8.0
 ARG PLUTO_VERSION=5.24.0
 ARG TRIVY_VERSION=0.75.0
@@ -68,13 +69,20 @@ RUN curl -fsSL -o ${BIN_DIR}/get_helm.sh ${HELM3_DOWNLOAD_URL} \
     && chown ${USER}. ${HELM_BIN}
 
 # helm-unittest plugin
-RUN helm plugin install https://github.com/helm-unittest/helm-unittest --version v${HELM_UNITTEST_VERSION}
+RUN curl -fsSL -o /tmp/helm-unittest.asc \
+      "https://raw.githubusercontent.com/helm-unittest/helm-unittest/v${HELM_UNITTEST_VERSION}/public-key.asc" \
+    && test "$(gpg --show-keys --with-colons /tmp/helm-unittest.asc | awk -F: '/^fpr/{print $10; exit}')" = "${HELM_UNITTEST_SIGNER_FPR}" \
+    && gpg --dearmor < /tmp/helm-unittest.asc > /tmp/helm-unittest.gpg \
+    && helm plugin install --keyring /tmp/helm-unittest.gpg \
+      "https://github.com/helm-unittest/helm-unittest/releases/download/v${HELM_UNITTEST_VERSION}/unittest-${HELM_UNITTEST_VERSION}.tgz" \
+    && rm /tmp/helm-unittest.asc /tmp/helm-unittest.gpg \
+    && helm unittest --help > /dev/null
 
 # eskctl
 RUN ARCH=amd64 \
     ; PLATFORM=$(uname -s)_$ARCH \
     ; curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz" \
-    && curl -sL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check \
+    && curl -sL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_checksums.txt" | grep " eksctl_${PLATFORM}.tar.gz$" | sha256sum --check \
     && tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz \
     && mv /tmp/eksctl ${BIN_DIR}/
 
