@@ -1,6 +1,6 @@
 FROM alpine:3.24.2
 
-LABEL REFRESHED_AT=20260211
+LABEL REFRESHED_AT=20261024
 
 # Don't slow down aws cli commands with connections to IMDS: we're not in AWS
 ENV AWS_EC2_METADATA_DISABLED=true
@@ -12,6 +12,7 @@ RUN apk add --no-cache \
         git \
         bash \
         jq \
+        openssl \
         build-base \
         make \
         findutils \
@@ -26,5 +27,6 @@ RUN curl --version && \
     git --version && \
     bash --version && \
     jq --version && \
+    openssl version && \
     make --version && \
     aws --version
