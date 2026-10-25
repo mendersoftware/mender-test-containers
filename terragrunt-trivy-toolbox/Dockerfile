@@ -5,7 +5,7 @@ LABEL REFRESHED_AT=20260928
 # (terragrunt/prod-us-dr) is in sync with prod (needs python3 and rsync)
 
 # Application list
-ENV TERRAGRUNT_VERSION=1.1.6
+ENV TERRAGRUNT_VERSION=1.2.1
 ENV TRIVY_VERSION=0.75.0
 
 # env
