@@ -343,6 +343,55 @@ build:terragrunt-trivy-toolbox:
         --push
         terragrunt-trivy-toolbox
 
+test:container-scan:
+  stage: test
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/python:3.15-alpine
+  needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - container-scan/**/*
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - container-scan/**/*
+        compare_to: refs/heads/master
+  script:
+    - cd container-scan
+    - python3 -m unittest -v test_scan
+
+build:container-scan:
+  stage: build
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
+  needs: []
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - container-scan/**/*
+    - when: manual
+      allow_failure: true
+  variables:
+    CONTAINER_TAG: "container-scan"
+    IMAGE_NAME: "container-scan"
+  services:
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
+      alias: docker
+  before_script:
+    - *requires-docker
+    - *dind-login
+  script:
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build
+        --cache-from ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:master
+        -t ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_PIPELINE_ID}
+        -t ${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${CI_PIPELINE_ID}
+        -f container-scan/Dockerfile
+        --push
+        container-scan
+
 build:release-please:
   stage: build
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}
@@ -694,6 +743,25 @@ publish:terragrunt-trivy-toolbox:
   variables:
     CONTAINER_TAG: "terragrunt-trivy-v1"
     IMAGE_NAME: "terragrunt-trivy-toolbox"
+    IMAGE_TAG: "${CI_COMMIT_BRANCH}"
+  script:
+    - *tag_n_push_to_gitlab_registry
+
+publish:container-scan:
+  extends: .template:publish
+  rules:
+    - !reference [.rules, default]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - container-scan/**/*
+  needs:
+    - job: test:container-scan
+      artifacts: false
+    - job: build:container-scan
+      artifacts: false
+  variables:
+    CONTAINER_TAG: "container-scan"
+    IMAGE_NAME: "container-scan"
     IMAGE_TAG: "${CI_COMMIT_BRANCH}"
   script:
     - *tag_n_push_to_gitlab_registry
