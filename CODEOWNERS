@@ -13,6 +13,9 @@
 # Terraform with trivy testing
 /terragrunt-trivy-toolbox/ @mendersoftware/sre-dependabot-reviewers
 
+# Hosted Mender container scan
+/container-scan/ @mendersoftware/sre-dependabot-reviewers
+
 # AWS toolbox
 /aws-k8s-toolbox/ @mendersoftware/sre-dependabot-reviewers
 
